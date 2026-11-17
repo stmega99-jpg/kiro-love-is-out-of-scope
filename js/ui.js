@@ -24,6 +24,7 @@
   var awayNote = false;
   var scene = null;
   var mockOn = false;
+  var titleTimer = 0;      // the stamp's sound and shake; cancelled when the intro is cut short
   var titleFresh = true;   // the title intro plays on load and when coming back from a result, never on a language switch
   var resultFresh = false;   // true only for the first render after the ending, so a language switch never replays the reveal
   var endId = null;
@@ -95,9 +96,10 @@
     titleFresh = false;
     var card = D.querySelector('.title-card');
     card.classList.toggle('fresh', fresh);
+    clearTimeout(titleTimer);   // a re-render (e.g. a language switch) ends the intro, so its sound and shake must not fire late
     if (fresh) {
       // The status stamp lands at ~1.3s.
-      later(function () {
+      titleTimer = setTimeout(function () {
         if (screen !== 'title') return;
         sfx('thunk');
         var m = D.querySelector('main'); m.classList.add('thud');
