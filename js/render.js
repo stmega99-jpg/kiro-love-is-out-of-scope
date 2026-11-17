@@ -136,58 +136,220 @@
   // Chibi-leaning proportions: big head, short body, sweater-paw sleeves.
   var SKIN = '#ffe4d2', HAIR_D = '#4f3fa8';
 
-  var COSTUMES = {
-    initial: { body: '#ffb6d3', skirt: '#ffcde1', trim: '#fff2f8', accent: '#ff8fba', stock: '#f4d6e4' },
-    merge: { body: '#16161d', skirt: '#1c1c26', trim: '#3c3c4c', accent: '#2a2a36', stock: '#101016' },
-    rc: { body: '#3a1f5c', skirt: '#2b1547', trim: '#d8c4ff', accent: '#7b3fb0', stock: '#1a0f2e' }
+  function f(n) { return Math.round(n * 100) / 100; }
+
+  // Palettes: b = bodice [light, mid, dark], s = skirt, lace = [front, back], bow = ribbon fabric.
+  // Shading follows the reference art: three-stop gradients lit from the upper left.
+  var P = {
+    initial: { b: ['#ffdceb', '#ffb3d1', '#ee8bb3'], s: ['#ffebf3', '#ffc6dc', '#f19dc0'], lace: ['#ffffff', '#ffeaf3'], line: '#f2a0c3', hole: '#ffc6dc', pipe: '#ffffff', bow: ['#ffbcd5', '#ff86b2', '#df5a92'], stock: '#f4d6e4' },
+    merge: { b: ['#383844', '#1b1b23', '#0c0c11'], s: ['#30303b', '#1d1d26', '#0d0d12'], lace: ['#53536a', '#3a3a4c'], line: '#6a6a84', hole: '#1d1d26', pipe: '#5a5a72', bow: null, stock: '#101016' },
+    rc: { b: ['#6f40ae', '#3d2062', '#210f38'], s: ['#5a3396', '#2d1650', '#150a29'], lace: ['#f3eaff', '#cdb6f2'], line: '#7b3fb0', hole: '#2d1650', pipe: '#d8c4ff', bow: ['#9060d0', '#5a2f94', '#2e1557'], stock: '#1a0f2e' }
   };
+  var GOLD = ['#f8e29a', '#c9a03c', '#8a6420'];
 
-  function circ(x, y, r, f, extra) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + f + '"' + (extra || '') + '/>'; }
+  function circ(x, y, r, fill, extra) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + fill + '"' + (extra || '') + '/>'; }
+  function stops(a) { return '<stop offset="0" stop-color="' + a[0] + '"/><stop offset=".55" stop-color="' + a[1] + '"/><stop offset="1" stop-color="' + a[2] + '"/>'; }
 
-  // Returns { svg, count } so the frill total is verifiable (15 / 2 / 24).
-  function frills(kind) {
-    var c = COSTUMES[kind], list = [], i;
-    if (kind === 'initial') {
-      for (i = 0; i < 9; i++) list.push(circ(-72 + i * 18, 338, 10, c.trim, ' stroke="#ffc2da" stroke-width="1.5"'));
-      for (i = -1; i <= 1; i++) list.push(circ(i * 11, 189, 6.5, c.trim));
-      list.push(circ(-52, 262, 8, c.trim), circ(52, 262, 8, c.trim));
-      list.push('<path d="M0 252 C-22 234 -26 264 0 254 C26 264 22 234 0 252 Z" fill="' + c.accent + '"/>');
-    } else if (kind === 'merge') {
-      list.push(circ(-52, 262, 5, c.trim), circ(52, 262, 5, c.trim));
-    } else {
-      for (i = 0; i < 14; i++) list.push(circ(-72 + i * 11.08, 338, 8, c.trim, ' stroke="' + c.accent + '" stroke-width="1.5"'));
-      for (i = -2; i <= 2; i++) list.push(circ(i * 11, 189, 5.5, c.trim));
-      list.push(circ(-54, 258, 6.5, c.trim), circ(-50, 268, 6.5, c.trim), circ(54, 258, 6.5, c.trim), circ(50, 268, 6.5, c.trim));
-      list.push('<path d="M0 252 C-24 232 -28 266 0 254 C28 266 24 232 0 252 Z" fill="' + c.accent + '"/>');
-    }
-    return { svg: list.join(''), count: list.length };
+  // Gradients shared by every outfit (felt, silver, rose, ink shading).
+  function sharedDefs(u) {
+    return       '<linearGradient id="' + u + 'ft" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3450"/><stop offset=".5" stop-color="#16141f"/><stop offset="1" stop-color="#0a0910"/></linearGradient>' +
+      '<linearGradient id="' + u + 'ft2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#47296f"/><stop offset=".5" stop-color="#1f1038"/><stop offset="1" stop-color="#0e0719"/></linearGradient>' +
+      '<linearGradient id="' + u + 'sv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f6fc"/><stop offset=".5" stop-color="#b9b9c9"/><stop offset="1" stop-color="#7c7c8e"/></linearGradient>' +
+      '<linearGradient id="' + u + 'gd" x1="0" y1="0" x2="0" y2="1">' + stops(GOLD) + '</linearGradient>' +
+      '<radialGradient id="' + u + 'rs" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#d4466f"/><stop offset=".55" stop-color="#8e1f47"/><stop offset="1" stop-color="#4a0f27"/></radialGradient>' +
+      '<radialGradient id="' + u + 'br" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#5a3a78"/><stop offset=".55" stop-color="#26112f"/><stop offset="1" stop-color="#0c0510"/></radialGradient>' +
+      '<radialGradient id="' + u + 'pl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#f6e4ee"/><stop offset="1" stop-color="#d7b6c8"/></radialGradient>' +
+      '<linearGradient id="' + u + 'bh" x1="0" y1="0" x2="1" y2="1">' + stops(['#ffbcd5', '#ff86b2', '#df5a92']) + '</linearGradient>';
   }
-  K.frillCount = function (kind) { return frills(kind).count; };
+
+  // Gradients that depend on the outfit.
+  function costumeDefs(kind, u) {
+    var p = P[kind];
+    var d = '<linearGradient id="' + u + 'hem" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.s[2] + '" stop-opacity="0"/><stop offset="1" stop-color="' + p.s[2] + '" stop-opacity=".6"/></linearGradient>' +
+      '<linearGradient id="' + u + 'wsh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.s[2] + '" stop-opacity=".55"/><stop offset="1" stop-color="' + p.s[2] + '" stop-opacity="0"/></linearGradient>' +
+      '<radialGradient id="' + u + 'bd" cx=".38" cy=".25" r=".95">' + stops(p.b) + '</radialGradient>' +
+      '<radialGradient id="' + u + 'sk" cx=".38" cy=".12" r="1.1">' + stops(p.s) + '</radialGradient>' +
+      '<linearGradient id="' + u + 'lc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.lace[0] + '"/><stop offset="1" stop-color="' + p.lace[1] + '"/></linearGradient>';
+    if (p.bow) d += '<linearGradient id="' + u + 'bw" x1="0" y1="0" x2="1" y2="1">' + stops(p.bow) + '</linearGradient>';
+    return d + '<clipPath id="' + u + 'skc"><path d="' + SKIRT + '"/></clipPath>';
+  }
+
+  // One lace trim piece: flat top, scalloped lower edge, eyelets, picot dots and a stitched top line.
+  function lace(cx, top, w, h, n, p, u, back) {
+    var x0 = cx - w / 2, x1 = cx + w / 2, sw = w / n, k;
+    var d = 'M' + f(x0) + ' ' + f(top) + ' H' + f(x1) + ' V' + f(top + h * 0.35);
+    for (k = 0; k < n; k++) {
+      var xr = x1 - k * sw, xl = xr - sw;
+      d += ' Q' + f((xr + xl) / 2) + ' ' + f(top + h * 1.7) + ' ' + f(xl) + ' ' + f(top + h * 0.35);
+    }
+    d += ' Z';
+    var s = '<g>';
+    if (back) s += '<path transform="translate(0,' + back + ')" d="' + d + '" fill="' + p.lace[1] + '" stroke="' + p.line + '" stroke-width=".7" opacity=".92"/>';
+    s += '<path d="' + d + '" fill="url(#' + u + 'lc)" stroke="' + p.line + '" stroke-width=".8" stroke-linejoin="round"/>';
+    s += '<path d="M' + f(x0 + 1) + ' ' + f(top + 1.5) + ' H' + f(x1 - 1) + '" stroke="' + p.line + '" stroke-width=".7" stroke-dasharray="1.6 1.4" opacity=".8" fill="none"/>';
+    for (k = 0; k < n; k++) {
+      var xm = x1 - (k + 0.5) * sw;
+      s += circ(f(xm), f(top + h * 0.6), f(Math.min(1.5, sw * 0.13)), p.hole);
+      s += circ(f(xm), f(top + h * 1.0), 0.9, p.line);
+    }
+    return s + '</g>';
+  }
+
+  // Soft cloth bow: gradient fabric, inner fold shadows, glossy highlights, notched tails.
+  function bow(cx, cy, sc, grad, tail) {
+    var g = 'url(#' + grad + ')', t = tail || 1;
+    return '<g transform="translate(' + cx + ',' + cy + ') scale(' + sc + ')">' +
+      '<g transform="translate(0,6) scale(1,' + t + ') translate(0,-6)">' +
+      '<path d="M-2 6 C-10 22 -16 36 -24 50 L-13 44 L-9 56 C-2 42 2 24 1 8 Z" fill="' + g + '"/><path d="M2 6 C10 22 16 36 24 50 L13 44 L9 56 C2 42 -2 24 -1 8 Z" fill="' + g + '"/>' +
+      '<path d="M-2 6 C-10 22 -16 36 -24 50 L-13 44 L-9 56 C-2 42 2 24 1 8 Z M2 6 C10 22 16 36 24 50 L13 44 L9 56 C2 42 -2 24 -1 8 Z" fill="#000" opacity=".14"/></g>' +
+      '<path d="M-2 0 C-16 -30 -50 -36 -54 -12 C-57 8 -30 18 -2 6 Z" fill="' + g + '" stroke="#000" stroke-opacity=".12" stroke-width="1"/>' +
+      '<path d="M2 0 C16 -30 50 -36 54 -12 C57 8 30 18 2 6 Z" fill="' + g + '" stroke="#000" stroke-opacity=".12" stroke-width="1"/>' +
+      '<path d="M-4 2 C-20 -4 -36 -10 -46 -10 C-40 2 -22 8 -4 6 Z M4 2 C20 -4 36 -10 46 -10 C40 2 22 8 4 6 Z" fill="#000" opacity=".16"/>' +
+      '<path d="M-4 1 C-22 -10 -34 -14 -48 -12 M4 1 C22 -10 34 -14 48 -12" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="1.2" stroke-linecap="round"/>' +
+      '<path d="M-14 -16 C-26 -26 -40 -26 -47 -18 M14 -16 C26 -26 40 -26 47 -18" fill="none" stroke="#fff" stroke-opacity=".34" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M-10 -4 C-24 -14 -38 -18 -50 -14 M10 -4 C24 -14 38 -18 50 -14" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.4" stroke-linecap="round"/>' +
+      '<path d="M-8 4 C-22 6 -36 2 -46 -4 M8 4 C22 6 36 2 46 -4" fill="none" stroke="#000" stroke-opacity=".1" stroke-width="1.2" stroke-linecap="round"/>' +
+      '<ellipse cx="0" cy="3" rx="8" ry="7" fill="' + g + '" stroke="#000" stroke-opacity=".15" stroke-width="1"/><ellipse cx="-2.5" cy="0" rx="3.2" ry="2" fill="#fff" opacity=".4"/></g>';
+  }
+
+  // Small embroidered rose (gold spiral, crimson petals, leaves).
+  function miniRose(x, y, r, u) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<path d="M-' + (r * 0.9) + ' ' + (r * 0.5) + ' q-' + (r * 1.6) + ' ' + (r * 0.1) + ' -' + (r * 1.8) + ' ' + (r * 1.2) + ' q' + (r * 1.4) + ' 0 ' + (r * 1.8) + ' -' + (r * 1.1) + ' Z M' + (r * 0.9) + ' ' + (r * 0.5) + ' q' + (r * 1.6) + ' ' + (r * 0.1) + ' ' + (r * 1.8) + ' ' + (r * 1.2) + ' q-' + (r * 1.4) + ' 0 -' + (r * 1.8) + ' -' + (r * 1.1) + ' Z" fill="#1f4a35" stroke="url(#' + u + 'gd)" stroke-width=".6"/>' +
+      circ(0, 0, r, 'url(#' + u + 'rs)', ' stroke="url(#' + u + 'gd)" stroke-width=".7"') +
+      '<path d="M0 0 m-' + (r * 0.3) + ' 0 a' + (r * 0.3) + ' ' + (r * 0.3) + ' 0 1 1 ' + (r * 0.3) + ' ' + (r * 0.3) + ' M-' + (r * 0.7) + ' ' + (r * 0.2) + ' a' + (r * 0.7) + ' ' + (r * 0.7) + ' 0 0 1 ' + (r * 1.2) + ' -' + (r * 0.5) + '" fill="none" stroke="#f3b6c8" stroke-opacity=".8" stroke-width=".8" stroke-linecap="round"/></g>';
+  }
+
+  var SKIRT = 'M-40 246 Q-46 298 -74 338 L74 338 Q46 298 40 246 Z';
+  var BODICE = 'M-31 184 L31 184 L38 254 L-38 254 Z';
+
+  function sleeves(kind, u) {
+    var p = P[kind], s = '';
+    [-1, 1].forEach(function (sd) {
+      s += '<path d="M' + sd * 32 + ' 196 L' + sd * 50 + ' 250" stroke="' + p.b[1] + '" stroke-width="17" stroke-linecap="round"/>';
+      s += '<path d="M' + (sd * 32 - 4) + ' 198 L' + (sd * 50 - 4) + ' 248" stroke="' + p.b[0] + '" stroke-width="4" stroke-linecap="round" opacity=".55"/>';
+      s += '<path d="M' + (sd * 32 + 5) + ' 198 L' + (sd * 50 + 5) + ' 248" stroke="' + p.b[2] + '" stroke-width="4" stroke-linecap="round" opacity=".5"/>';
+      s += circ(sd * 54, 265, 6, SKIN);
+      s += circ(sd * 52, 255, 10, 'url(#' + u + 'bd)', ' stroke="' + p.b[2] + '" stroke-opacity=".35" stroke-width="1"');
+    });
+    return s;
+  }
+
+  function torso(kind, u) {
+    var p = P[kind], s = '<path d="' + BODICE + '" fill="url(#' + u + 'bd)"/>';
+    s += '<path d="M-31 184 L-22 184 L-27 254 L-38 254 Z M31 184 L22 184 L27 254 L38 254 Z" fill="' + p.b[2] + '" opacity=".4"/>';
+    if (kind !== 'merge') s += '<ellipse cx="-8" cy="205" rx="8" ry="18" fill="#fff" opacity=".12"/>';
+    // waist band
+    s += '<path d="M-38 249 H38" stroke="' + (kind === 'rc' ? 'url(#' + u + 'gd)' : p.b[2]) + '" stroke-width="' + (kind === 'rc' ? 2.2 : 4) + '" opacity="' + (kind === 'rc' ? 1 : 0.55) + '"/>';
+    if (kind === 'initial') {
+      [200, 212, 224].forEach(function (y) { s += circ(0, y, 2, 'url(#' + u + 'pl)', ' stroke="#e9a8c4" stroke-width=".5"'); });
+      s += '<path d="M-24 196 Q-20 216 -26 240 M24 196 Q20 216 26 240" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="1.6 2.2" opacity=".85"/>';
+      // collar base (Peter Pan)
+      s += '<path d="M-27 183 Q-18 199 0 202 Q18 199 27 183 L19 181 Q0 193 -19 181 Z" fill="url(#' + u + 'lc)" stroke="' + p.line + '" stroke-width=".9" stroke-linejoin="round"/>';
+    } else if (kind === 'merge') {
+      s += '<path d="M-12 184 L0 195 L12 184 L9 181 L0 189 L-9 181 Z" fill="#3c3c4c"/>';
+    } else {
+      // corset lacing
+      [204, 216, 228, 240].forEach(function (y) {
+        s += '<path d="M-7 ' + y + ' L7 ' + (y + 11) + ' M7 ' + y + ' L-7 ' + (y + 11) + '" stroke="url(#' + u + 'gd)" stroke-width="1.3" stroke-linecap="round" fill="none"/>';
+      });
+      s += '<path d="M-9 200 V251 M9 200 V251" stroke="url(#' + u + 'gd)" stroke-width="1.1" opacity=".85"/>';
+      // vines on the bodice sides
+      s += '<g fill="none" stroke="url(#' + u + 'gd)" stroke-width="1.1" stroke-linecap="round" opacity=".95">' +
+        '<path d="M-17 198 Q-27 210 -20 224 Q-15 234 -24 246 M17 198 Q27 210 20 224 Q15 234 24 246"/>' +
+        '<path d="M-22 214 q-5 -3 -7 1 M-19 228 q-5 -1 -6 4 M22 214 q5 -3 7 1 M19 228 q5 -1 6 4"/></g>';
+      s += circ(-20, 224, 1.4, 'url(#' + u + 'gd)') + circ(20, 224, 1.4, 'url(#' + u + 'gd)');
+      // collar base: dark with gold piping
+      s += '<path d="M-27 183 Q-18 199 0 202 Q18 199 27 183 L19 181 Q0 193 -19 181 Z" fill="url(#' + u + 'bd)" stroke="url(#' + u + 'gd)" stroke-width="1.1" stroke-linejoin="round"/>';
+    }
+    return s;
+  }
+
+  function skirt(kind, u) {
+    var p = P[kind], k = kind === 'merge' ? 0.6 : kind === 'rc' ? 1.15 : 1, N = kind === 'merge' ? 6 : 10, i;
+    var s = '<path d="' + SKIRT + '" fill="url(#' + u + 'sk)"/><g clip-path="url(#' + u + 'skc)">';
+    function line(j) {
+      var xw = -40 + j * 80 / N, xh = -74 + j * 148 / N, xm = xw + (xh - xw) * 0.4;
+      return { xw: xw, xh: xh, xm: xm };
+    }
+    for (i = 0; i < N; i++) {
+      var a = line(i), b = line(i + 1);
+      s += '<path d="M' + f(a.xw) + ' 246 Q' + f(a.xm) + ' 296 ' + f(a.xh) + ' 338 L' + f(b.xh) + ' 338 Q' + f(b.xm) + ' 296 ' + f(b.xw) + ' 246 Z" fill="' + (i % 2 ? '#fff' : p.s[2]) + '" fill-opacity="' + f((i % 2 ? 0.12 : 0.2) * k) + '"/>';
+    }
+    for (i = 1; i < N; i++) {
+      var c = line(i);
+      s += '<path d="M' + f(c.xw) + ' 246 Q' + f(c.xm) + ' 296 ' + f(c.xh) + ' 338" fill="none" stroke="' + p.s[2] + '" stroke-opacity="' + f(0.3 * k) + '" stroke-width="1"/>';
+    }
+    s += '<rect x="-80" y="294" width="160" height="46" fill="url(#' + u + 'hem)"/><rect x="-44" y="246" width="88" height="16" fill="url(#' + u + 'wsh)"/>';
+    if (kind === 'initial') {
+      s += '<path d="M-70 321 Q0 327 70 321" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="2 3" stroke-linecap="round" opacity=".9"/>';
+    } else if (kind === 'rc') {
+      s += '<path d="M-66 322 Q0 328 66 322" fill="none" stroke="url(#' + u + 'gd)" stroke-width="1.2" stroke-dasharray="1.2 2.6" stroke-linecap="round"/>';
+      s += '<g fill="none" stroke="url(#' + u + 'gd)" stroke-width="1" stroke-linecap="round" opacity=".95">' +
+        '<path d="M-44 312 Q-36 300 -26 306 M-26 306 Q-16 312 -8 304 M44 312 Q36 300 26 306 M26 306 Q16 312 8 304 M-14 322 Q0 312 14 322"/></g>';
+      s += miniRose(-26, 306, 5, u) + miniRose(26, 306, 5, u) + miniRose(0, 316, 4.5, u);
+    }
+    return s + '</g>';
+  }
+
+  // Returns { svg, count, top }; every lace piece / bow is one counted element (15 / 2 / 24).
+  function frills(kind, u) {
+    var p = P[kind], list = [], i, top = '';
+    if (kind === 'initial') {
+      for (i = 0; i < 9; i++) list.push(lace(-74 + 148 / 9 * (i + 0.5), 329, 16.8, 11, 2, p, u));
+      [[-15, 193], [0, 198], [15, 193]].forEach(function (c) { list.push(lace(c[0], c[1], 13, 6, 2, p, u)); });
+      list.push(lace(-52, 261, 19, 8, 3, p, u), lace(52, 261, 19, 8, 3, p, u));
+      list.push(bow(0, 250, 0.5, u + 'bw'));
+      top += circ(0, 191.5, 3.2, 'url(#' + u + 'pl)', ' stroke="#e9a8c4" stroke-width=".7"');
+    } else if (kind === 'merge') {
+      list.push('<path d="M-60 259 Q-52 267 -44 259" fill="none" stroke="' + p.pipe + '" stroke-width="2" stroke-linecap="round"/>');
+      list.push('<path d="M44 259 Q52 267 60 259" fill="none" stroke="' + p.pipe + '" stroke-width="2" stroke-linecap="round"/>');
+    } else {
+      for (i = 0; i < 14; i++) list.push(lace(-74 + 148 / 14 * (i + 0.5), 329, 10.8, 9, 1, p, u, 4));
+      for (i = -2; i <= 2; i++) list.push(lace(i * 11.5, 197 - i * i * 1.6, 11, 6, 1, p, u));
+      list.push(lace(-54, 257, 20, 8, 3, p, u, 3), lace(-50, 266, 15, 7, 2, p, u), lace(54, 257, 20, 8, 3, p, u, 3), lace(50, 266, 15, 7, 2, p, u));
+      list.push(bow(0, 250, 0.5, u + 'bw'));
+      top += miniRose(0, 196, 5.2, u);
+      top += '<path d="M-30 267 q-5 3 -9 0 M30 267 q5 3 9 0" fill="none" stroke="url(#' + u + 'gd)" stroke-width="1" stroke-linecap="round"/>';
+    }
+    return { svg: list.join(''), count: list.length, top: top };
+  }
+  K.frillCount = function (kind) { return frills(kind in P ? kind : 'initial', 'c-').count; };
 
   // Headwear is authored around the old head position; the wrapper lowers it onto the larger head.
-  function headwear(kind) {
-    var s;
+  function headwear(kind, u) {
+    var s, i;
     if (kind === 'initial') {
-      s = '<g transform="translate(-36,62)">' +
-        '<path d="M0 0 C-44 -40 -58 18 0 10 Z" fill="#ff8fba" stroke="#ff6fa4" stroke-width="2"/>' +
-        '<path d="M0 0 C44 -40 58 18 0 10 Z" fill="#ff8fba" stroke="#ff6fa4" stroke-width="2"/>' +
-        '<path d="M-4 8 L-18 38 L-6 32 L0 44 Z M4 8 L18 38 L6 32 L0 44 Z" fill="#ff77ab"/>' +
-        circ(0, 5, 8, '#ff5f9d') + '</g>';
-      return '<g transform="translate(-6,20)">' + s + '</g>';
+      return '<g transform="translate(-6,20)"><g transform="translate(-36,62)">' + bow(0, 0, 0.95, u + 'bh', 0.5) + '</g></g>';
     }
     if (kind === 'merge') {
-      s = '<ellipse cx="0" cy="66" rx="62" ry="11" fill="#101015"/>' +
-        '<path d="M-36 66 L8 -14 L38 66 Z" fill="#101015"/>' +
-        '<path d="M-32 58 L36 58 L38 66 L-36 66 Z" fill="#3b2f66"/>';
+      s = '<ellipse cx="0" cy="70" rx="60" ry="10" fill="#000" opacity=".3"/>' +
+        '<ellipse cx="0" cy="66" rx="62" ry="11" fill="url(#' + u + 'ft)"/>' +
+        '<path d="M-50 64 Q0 76 52 64" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="2"/>' +
+        '<path d="M-36 66 Q-10 24 8 -14 Q16 30 38 66 Z" fill="url(#' + u + 'ft)"/>' +
+        '<path d="M-18 50 Q-6 22 6 2" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M-33 58 Q0 64 36 58 L38 66 Q0 72 -36 66 Z" fill="#4a3d86"/>' +
+        '<path d="M-33 58 Q0 64 36 58" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1"/>' +
+        '<rect x="-3" y="58" width="11" height="10" rx="2" fill="url(#' + u + 'sv)" stroke="#777" stroke-width=".6"/><rect x="0" y="61" width="5" height="4" rx="1" fill="#4a3d86"/>';
       return '<g transform="translate(0,18)">' + s + '</g>';
     }
-    s = '<ellipse cx="0" cy="68" rx="68" ry="12" fill="#1a0f2e" stroke="#7b3fb0" stroke-width="2"/>';
-    for (var i = 0; i < 11; i++) s += circ(-60 + i * 12, 76 - Math.sin(i / 10 * Math.PI) * 4, 5, '#d8c4ff');
-    s += '<path d="M-40 68 Q-12 12 -6 -8 Q16 -12 26 -4 Q8 14 40 68 Z" fill="#1a0f2e" stroke="#7b3fb0" stroke-width="2"/>';
-    s += '<path d="M-34 56 L36 56 L40 68 L-40 68 Z" fill="#7b3fb0"/>';
-    s += '<g transform="translate(22,58)">' + circ(0, 0, 11, '#120812', ' stroke="#8b3fb8" stroke-width="2"') + circ(0, 0, 7, '#1d0c22', ' stroke="#6b2a8f" stroke-width="1.5"') +
-      '<path d="M0 0 m-3 0 a3 3 0 1 1 3 3" fill="none" stroke="#8b3fb8" stroke-width="1.5"/>' +
-      '<path d="M-10 6 q-12 2 -14 10 q10 0 14 -6 Z M10 6 q12 2 14 10 q-10 0 -14 -6 Z" fill="#1c3a2a"/></g>';
+    s = '<ellipse cx="0" cy="72" rx="66" ry="11" fill="#000" opacity=".3"/>' +
+      '<ellipse cx="0" cy="68" rx="68" ry="12" fill="url(#' + u + 'ft2)" stroke="#7b3fb0" stroke-width="2"/>';
+    for (i = 0; i < 11; i++) {
+      var y = 71 - Math.sin(i / 10 * Math.PI) * 3;
+      s += lace(-60 + i * 12, y, 12, 7, 1, P.rc, u, 2);
+    }
+    s += '<path d="M-40 68 Q-12 12 -6 -8 Q16 -12 26 -4 Q8 14 40 68 Z" fill="url(#' + u + 'ft2)" stroke="#7b3fb0" stroke-width="2"/>';
+    s += '<path d="M-24 52 Q-16 22 -6 6" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="3" stroke-linecap="round"/>';
+    s += '<path d="M12 44 Q20 34 14 26 Q8 20 14 12 M12 44 q6 -2 8 2" fill="none" stroke="url(#' + u + 'gd)" stroke-width="1.1" stroke-linecap="round"/>' + circ(14, 12, 1.4, 'url(#' + u + 'gd)') + circ(20, 46, 1.4, 'url(#' + u + 'gd)');
+    s += '<path d="M-34 56 L36 56 L40 68 L-40 68 Z" fill="#6a3699"/>' +
+      '<path d="M-34 56 L36 56 M-40 68 L40 68" fill="none" stroke="url(#' + u + 'gd)" stroke-width="1.3"/>';
+    s += '<g transform="translate(22,58)">' +
+      '<path d="M-10 6 q-12 2 -14 10 q10 0 14 -6 Z M10 6 q12 2 14 10 q-10 0 -14 -6 Z" fill="#1c3a2a" stroke="url(#' + u + 'gd)" stroke-width=".6"/>' +
+      circ(0, 0, 12, 'url(#' + u + 'br)', ' stroke="url(#' + u + 'gd)" stroke-width="1.2"') +
+      circ(0, 0, 7.5, 'none', ' stroke="#8b3fb8" stroke-width="1.4" stroke-opacity=".9"') +
+      '<path d="M0 0 m-3.5 0 a3.5 3.5 0 1 1 3.5 3.5 M-8 2 a8 8 0 0 1 12 -7" fill="none" stroke="#b07ad8" stroke-width="1.3" stroke-linecap="round"/>' +
+      '<ellipse cx="-4" cy="-5" rx="3.5" ry="1.8" fill="#fff" opacity=".35"/></g>';
     return '<g transform="translate(0,18)">' + s + '</g>';
   }
 
@@ -213,30 +375,28 @@
     o = o || {};
     layers = layers || {};
     var u = (o.uid || 'k') + '-';
-    var cb = COSTUMES[layers.costumeBody] ? layers.costumeBody : 'initial';
+    var cb = P[layers.costumeBody] ? layers.costumeBody : 'initial';
     var ch = { initial: 1, merge: 1, rc: 1 }[layers.costumeHead] ? layers.costumeHead : 'initial';
-    var c = COSTUMES[cb], joy = o.expr === 'joy';
-    var fr = frills(cb);
+    var joy = o.expr === 'joy';
+    var fr = frills(cb, u);
     var s = '<g transform="translate(' + (o.x == null ? 320 : o.x) + ',' + (o.y == null ? 18 : o.y) + ') scale(' + (o.scale || 0.93) + ')">';
     s += '<defs><linearGradient id="' + u + 'hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d68ea"/><stop offset="1" stop-color="#5a45c2"/></linearGradient>' +
       '<linearGradient id="' + u + 'hairb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a47b8"/><stop offset="1" stop-color="#43348f"/></linearGradient>' +
       '<linearGradient id="' + u + 'iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3f9e"/><stop offset="1" stop-color="#58cfdc"/></linearGradient></defs>';
+    s += '<defs>' + sharedDefs(u) + costumeDefs(cb, u) + '</defs>';
     s += '<ellipse cx="0" cy="388" rx="64" ry="8" fill="#000" opacity=".25"/>';
     s += '<g class="k-sway">';
     // back hair with rounded tips
     s += '<path d="M-66 120 Q-70 54 0 50 Q70 54 66 120 L74 250 Q76 284 48 282 Q0 294 -48 282 Q-76 284 -74 250 Z" fill="url(#' + u + 'hairb)"/>';
     // legs and shoes
-    s += '<rect x="-18" y="336" width="13" height="40" fill="' + c.stock + '"/><rect x="5" y="336" width="13" height="40" fill="' + c.stock + '"/>';
+    s += '<rect x="-18" y="336" width="13" height="40" fill="' + P[cb].stock + '"/><rect x="5" y="336" width="13" height="40" fill="' + P[cb].stock + '"/>';
     s += '<ellipse cx="-12" cy="380" rx="14" ry="6.5" fill="#241a2e"/><ellipse cx="12" cy="380" rx="14" ry="6.5" fill="#241a2e"/>';
-    // sweater-paw sleeves: little hands peek out under the cuffs
-    s += '<path d="M-32 196 L-50 250" stroke="' + c.body + '" stroke-width="17" stroke-linecap="round"/><path d="M32 196 L50 250" stroke="' + c.body + '" stroke-width="17" stroke-linecap="round"/>';
-    s += circ(-54, 265, 6, SKIN) + circ(54, 265, 6, SKIN);
-    s += circ(-52, 255, 10, c.body) + circ(52, 255, 10, c.body);
-    // body
+    // sweater-paw sleeves, body, skirt, then lace and bows on top
+    s += sleeves(cb, u);
     s += '<rect x="-9" y="164" width="18" height="26" fill="' + SKIN + '"/>';
-    s += '<path d="M-31 184 L31 184 L38 254 L-38 254 Z" fill="' + c.body + '"/>';
-    s += '<path d="M-40 246 L40 246 L74 338 L-74 338 Z" fill="' + c.skirt + '"/>';
-    s += fr.svg;
+    s += torso(cb, u);
+    s += skirt(cb, u);
+    s += fr.svg + fr.top;
     // head: soft rounded face
     s += '<ellipse cx="0" cy="122" rx="55" ry="50" fill="' + SKIN + '"/>';
     // front hair: fringe, side locks with rounded ends, ahoge, highlight bands
@@ -259,7 +419,7 @@
       s += '<path d="M-31 107 Q-21 103 -11 106 M11 106 Q21 103 31 107" fill="none" stroke="' + HAIR_D + '" stroke-width="2.2" stroke-linecap="round"/>';
       s += '<path d="M-5 151 Q-2.5 153.5 0 151 Q2.5 153.5 5 151" fill="none" stroke="#b05a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
     }
-    s += headwear(ch);
+    s += headwear(ch, u);
     s += '</g></g>';
     return s;
   };
