@@ -46,12 +46,17 @@
     return out;
   }
 
-  function bgDark(u) {
+  function bgDark(u, drop) {
     var out = '';
     out += '<defs><linearGradient id="' + u + 'dk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07070a"/><stop offset="1" stop-color="#14141b"/></linearGradient></defs>';
     out += '<rect width="640" height="400" fill="url(#' + u + 'dk)"/>';
     out += '<rect y="350" width="640" height="2" fill="#2a2a35"/>';
-    out += tomb(110, 372, 1.5);
+    if (drop) {
+      out += '<g class="tomb-drop-svg">' + tomb(110, 372, 1.5) + '</g>';
+      [[-26, 0], [0, -8], [26, 0]].forEach(function (d, i) {
+        out += '<circle class="dust-svg" style="--dx:' + d[0] + 'px;--t:' + (0.42 + i * 0.02) + 's" cx="' + (110 + d[0] * 0.3) + '" cy="' + (372 + d[1]) + '" r="9" fill="#b9bcc6"/>';
+      });
+    } else out += tomb(110, 372, 1.5);
     // blossoms stopped: dim petals resting on the floor
     [[200, 392], [260, 388], [380, 394], [470, 389], [540, 393]].forEach(function (p) {
       out += '<ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="6" ry="3" fill="#4a3340" transform="rotate(' + (p[0] % 50) + ' ' + p[0] + ' ' + p[1] + ')"/>';
@@ -126,11 +131,11 @@
   }
 
   var BG = { initial: bgSpring, merge: bgDark, rc: bgHalloween };
-  K.bgInner = function (theme, uid, scene) {
+  K.bgInner = function (theme, uid, scene, drop) {
     uid = uid || 'u';
     if (scene === 'park') return bgPark(uid);
     if (scene === 'tombs') return bgTombs(uid);
-    return (BG[theme] || bgSpring)(uid);
+    return (BG[theme] || bgSpring)(uid, drop);
   };
 
   /* ---------- Kiro sprite ---------- */
@@ -230,8 +235,8 @@
       s += '<path d="M' + sd * 32 + ' 196 L' + sd * 50 + ' 250" stroke="' + p.b[1] + '" stroke-width="17" stroke-linecap="round"/>';
       s += '<path d="M' + (sd * 32 - 4) + ' 198 L' + (sd * 50 - 4) + ' 248" stroke="' + p.b[0] + '" stroke-width="4" stroke-linecap="round" opacity=".55"/>';
       s += '<path d="M' + (sd * 32 + 5) + ' 198 L' + (sd * 50 + 5) + ' 248" stroke="' + p.b[2] + '" stroke-width="4" stroke-linecap="round" opacity=".5"/>';
-      s += circ(sd * 54, 265, 6, SKIN);
-      s += circ(sd * 52, 255, 10, 'url(#' + u + 'bd)', ' stroke="' + p.b[2] + '" stroke-opacity=".35" stroke-width="1"');
+      s += '<g class="k-hand k-hand-' + (sd < 0 ? 'l' : 'r') + '">' + circ(sd * 54, 265, 6, SKIN) +
+        circ(sd * 52, 255, 10, 'url(#' + u + 'bd)', ' stroke="' + p.b[2] + '" stroke-opacity=".35" stroke-width="1"') + '</g>';
     });
     return s;
   }
@@ -359,14 +364,16 @@
   }
 
   // One big eye. `side` is -1 (left) or 1 (right). `joy` makes it a little larger with a star glint.
-  function eye(side, joy, u) {
+  function eye(side, joy, u, work) {
     var ry = joy ? 15.5 : 14, rx = joy ? 11.5 : 11;
     var s = '<g transform="translate(' + (side * 21) + ',128)"><g class="k-eye">';
     s += '<ellipse rx="' + rx + '" ry="' + ry + '" fill="url(#' + u + 'iris)"/>';
+    if (work) s += '<g transform="translate(' + (-side * 1) + ',3.5)">';
     s += '<ellipse rx="6.2" ry="' + (ry - 5) + '" cy="1.5" fill="#1b2350"/>';
     s += circ(-3.5 * side, -5, joy ? 4.6 : 4, '#fff');
     if (joy) s += '<path transform="translate(' + (4 * side) + ',5) scale(.55)" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2Z" fill="#fff"/>';
     else s += circ(4 * side, 5, 2, '#fff', ' opacity=".9"');
+    if (work) s += '</g>';
     s += '<path d="M' + (-rx - 1) + ' -5 Q0 ' + (-ry - 4) + ' ' + (rx + 1) + ' -5" fill="none" stroke="#1f2a44" stroke-width="3.2" stroke-linecap="round"/>';
     s += '<path d="M' + (side * (rx + 1)) + ' -5 l' + (side * 4) + ' 2" stroke="#1f2a44" stroke-width="2.4" stroke-linecap="round"/>';
     return s + '</g></g>';
@@ -378,7 +385,7 @@
     var u = (o.uid || 'k') + '-';
     var cb = P[layers.costumeBody] ? layers.costumeBody : 'initial';
     var ch = { initial: 1, merge: 1, rc: 1 }[layers.costumeHead] ? layers.costumeHead : 'initial';
-    var joy = o.expr === 'joy';
+    var joy = o.expr === 'joy', work = o.expr === 'work';
     var fr = frills(cb, u);
     var s = '<g transform="translate(' + (o.x == null ? 320 : o.x) + ',' + (o.y == null ? 18 : o.y) + ') scale(' + (o.scale || 0.93) + ')">';
     s += '<defs><linearGradient id="' + u + 'hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d68ea"/><stop offset="1" stop-color="#5a45c2"/></linearGradient>' +
@@ -386,7 +393,7 @@
       '<linearGradient id="' + u + 'iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3f9e"/><stop offset="1" stop-color="#58cfdc"/></linearGradient></defs>';
     s += '<defs>' + sharedDefs(u) + costumeDefs(cb, u) + '</defs>';
     s += '<ellipse cx="0" cy="388" rx="64" ry="8" fill="#000" opacity=".25"/>';
-    s += '<g class="k-sway">';
+    s += '<g class="k-sway' + (work ? ' k-work' : '') + '">';
     // back hair with rounded tips
     s += '<path d="M-66 120 Q-70 54 0 50 Q70 54 66 120 L74 250 Q76 284 48 282 Q0 294 -48 282 Q-76 284 -74 250 Z" fill="url(#' + u + 'hairb)"/>';
     // legs and shoes
@@ -410,7 +417,7 @@
     s += '<g transform="translate(-52,146)"><path d="M-8 9 V-2 Q-8 -11 0 -11 Q8 -11 8 -2 V9 L4.5 5.5 L0 9 L-4.5 5.5 Z" fill="#f6f2ff" stroke="#9a86f0" stroke-width="1.4"/>' +
       circ(-3, -3, 1.4, '#3b2f66') + circ(3, -3, 1.4, '#3b2f66') + '</g>';
     // face
-    s += eye(-1, joy, u) + eye(1, joy, u);
+    s += eye(-1, joy, u, work) + eye(1, joy, u, work);
     s += '<ellipse cx="-35" cy="145" rx="9" ry="5" fill="#ff8fa3" opacity="' + (joy ? '.6' : '.35') + '"/><ellipse cx="35" cy="145" rx="9" ry="5" fill="#ff8fa3" opacity="' + (joy ? '.6' : '.35') + '"/>';
     if (joy) {
       s += '<path d="M-32 104 Q-21 97 -10 101 M10 101 Q21 97 32 104" fill="none" stroke="' + HAIR_D + '" stroke-width="2.2" stroke-linecap="round"/>';
@@ -426,8 +433,8 @@
   };
 
   /* ---------- Widgets ---------- */
-  K.tombSvg = function (w, h) {
-    return '<svg class="tomb-svg" viewBox="-40 -80 80 90" width="' + (w || 40) + '" height="' + (h || 45) + '" aria-hidden="true">' + tomb(0, 0, 1) + '</svg>';
+  K.tombSvg = function (w, h, cls) {
+    return '<svg class="tomb-svg' + (cls ? ' ' + cls : '') + '" viewBox="-40 -80 80 90" width="' + (w || 40) + '" height="' + (h || 45) + '" aria-hidden="true">' + tomb(0, 0, 1) + '</svg>';
   };
 
   K.giftSvg = function () {

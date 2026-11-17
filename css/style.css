@@ -236,8 +236,59 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
 }
 @keyframes pulse2 { 50% { transform: scale(1.03); } }
 
+/* ---- Gag staging ---- */
+/* tombstone drop (HUD, slots) */
+.tomb-wrap { position: relative; display: inline-flex; flex: none; }
+.tomb-drop { animation: tombDrop .62s cubic-bezier(.3, 0, .6, 1) both; }
+@keyframes tombDrop {
+  0% { transform: translateY(-120px); opacity: 0; }
+  12% { opacity: 1; }
+  62% { transform: translateY(0); }
+  74% { transform: translateY(-9px); }
+  86% { transform: translateY(0); }
+  93% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+.dust { position: absolute; left: 50%; bottom: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #b9bcc6; opacity: 0; animation: dust .6s ease-out .4s both; }
+@keyframes dust { 0% { opacity: .75; transform: translate(0, 0) scale(.4); } 100% { opacity: 0; transform: translate(var(--dx, 0), -8px) scale(1.7); } }
+/* tombstone drop inside the SVG background */
+.tomb-drop-svg { animation: tombDropSvg .62s cubic-bezier(.3, 0, .6, 1) both; }
+@keyframes tombDropSvg {
+  0% { transform: translateY(-420px); }
+  62% { transform: translateY(0); }
+  74% { transform: translateY(-16px); }
+  86% { transform: translateY(0); }
+  93% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+.dust-svg { opacity: 0; transform-box: fill-box; transform-origin: center; animation: dustSvg .6s ease-out var(--t, .42s) both; }
+@keyframes dustSvg { 0% { opacity: .7; transform: translate(0, 0) scale(.3); } 100% { opacity: 0; transform: translate(var(--dx, 0), -10px) scale(2.2); } }
+main.thud { animation: thud .34s linear; }
+@keyframes thud { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(0, 5px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(0, -1px); } }
+
+/* Kiro lights up only when the player asks for real work (choice C) */
+.stage-burst, .stage-glow { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.joy-glow { position: absolute; left: 50%; top: 38%; width: 70%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255, 226, 120, .62), rgba(255, 226, 120, 0) 66%); animation: glow 2.2s ease-out both; }
+@keyframes glow { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25); } }
+.spark { position: absolute; font-size: var(--sz, 16px); color: #ffe37a; text-shadow: 0 0 8px #ffbf3f; opacity: 0; animation: spark 1.5s ease-out var(--t, 0s) both; }
+@keyframes spark { 0% { opacity: 0; transform: translateY(14px) scale(.2) rotate(0); } 25% { opacity: 1; transform: translateY(0) scale(1.15) rotate(45deg); } 100% { opacity: 0; transform: translateY(-34px) scale(.6) rotate(120deg); } }
+.kiro-joy { animation: joyPop .6s ease-out; }
+@keyframes joyPop { 0% { transform: translateY(0) scale(1); } 22% { transform: translateY(-16px) scale(1.03); } 44% { transform: translateY(0) scale(1); } 62% { transform: translateY(-8px) scale(1.015); } 100% { transform: translateY(0) scale(1); } }
+
+/* A / B: deadpan Kiro keeps working on her screen */
+.work-panel { position: absolute; right: 3%; top: 34%; width: 20%; height: 26%; background: rgba(8, 18, 12, .86); border: 2px solid #2d6b47; border-radius: 8px; overflow: hidden; box-shadow: 0 0 14px rgba(93, 255, 154, .35); }
+.work-code { display: flex; flex-direction: column; gap: 7%; padding: 8% 8% 0; animation: codeScroll 3.2s linear infinite; }
+.work-code i { display: block; height: 7px; border-radius: 3px; background: #5dff9a; opacity: .8; }
+.work-code i:nth-child(4n+1) { width: 82%; } .work-code i:nth-child(4n+2) { width: 56%; margin-left: 12%; background: #9ad7ff; }
+.work-code i:nth-child(4n+3) { width: 68%; margin-left: 12%; } .work-code i:nth-child(4n) { width: 38%; background: #ffd86b; }
+@keyframes codeScroll { to { transform: translateY(-50%); } }
+.k-work .k-hand { transform-box: fill-box; transform-origin: center; animation: tap .2s ease-in-out infinite alternate; }
+.k-work .k-hand-r { animation-delay: .1s; }
+@keyframes tap { from { transform: translateY(0); } to { transform: translateY(-2.4px); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .k-eye, .k-sway { animation: none !important; }
+  .k-eye, .k-sway, .k-work .k-hand, .tomb-drop, .tomb-drop-svg, .dust, .dust-svg, .kiro-joy, .work-code, main.thud { animation: none !important; }
+  .dust, .dust-svg, .stage-burst, .stage-glow { display: none; }
   .petal, .bat, .ember { display: none; }
   .bat .wing, .flick, .twinkle, .wheel, .bubble, .line.new, .mock-bar, .kiro-in { animation: none !important; }
 }
