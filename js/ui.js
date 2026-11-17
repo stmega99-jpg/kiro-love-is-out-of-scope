@@ -30,6 +30,7 @@
   var timers = [];
   var bgKey = '';
   var shownLines = 0;
+  var kiroKey = '';
 
   function tr(o) { return o[lang]; }
   function ui(key) { return K.UI[key][lang]; }
@@ -74,7 +75,7 @@
     $('t-sub').textContent = ui('subtitle');
     $('t-tag').textContent = ui('tagline');
     $('btn-start').textContent = ui('start');
-    $('t-sprite').innerHTML = '<svg viewBox="200 0 240 400" aria-hidden="true">' + K.kiroSvg({}, { x: 320, y: 18, scale: 0.93 }) + '</svg>';
+    $('t-sprite').innerHTML = '<svg viewBox="200 0 240 400" aria-hidden="true">' + K.kiroSvg({}, { x: 320, y: 18, scale: 0.93, uid: 'tt' }) + '</svg>';
   }
 
   function renderHud() {
@@ -128,7 +129,11 @@
       bgKey = key;
       $('stage-bg').innerHTML = K.stageSvg(K.bgInner(L.bgTheme, 'st', scene));
     }
-    $('stage-kiro').innerHTML = kiroPresent ? K.stageSvg(K.kiroSvg(L, { expr: expr })) : '';
+    var kk = [kiroPresent, expr, L.costumeBody, L.costumeHead].join('|');
+    if (kk !== kiroKey) {
+      kiroKey = kk;
+      $('stage-kiro').innerHTML = kiroPresent ? K.stageSvg(K.kiroSvg(L, { expr: expr, uid: 'st' })) : '';
+    }
     var fx = '';
     if (!kiroPresent && awayNote) fx += '<div class="kiro-away">' + esc(ui('kiroAway')) + '</div>';
     if (mockOn) fx += '<div class="mock-bar" aria-label="mock"><span class="tag">' + esc(ui('mock')) + '</span><span class="aff-label">💗 ' + esc(ui('affection')) + ': 100 / 100</span><div class="bar bar-heart"><div class="bar-fill" style="width:100%"></div></div></div>';
@@ -286,7 +291,7 @@
     K.audio.setMode('initial');
     game = K.createGame();
     log = []; queue = []; expr = 'neutral'; kiroPresent = true; awayNote = false; scene = null; mockOn = false;
-    endId = null; savedOk = false; fxExtra = null; bgKey = ''; shownLines = 0;
+    endId = null; savedOk = false; fxExtra = null; bgKey = ''; shownLines = 0; kiroKey = '';
     setKiroClass('');
     show('game');
     goDay();
