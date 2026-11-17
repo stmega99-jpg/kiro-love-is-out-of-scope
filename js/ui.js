@@ -39,7 +39,7 @@
     var id = setTimeout(function () { fn(); }, ms);
     timers.push(id);
   }
-  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; cancelTyping(); }
 
   function toast(msg) {
     var el = $('toast');
@@ -158,18 +158,97 @@
   function lineHtml(l, i) {
     var cls = i >= shownLines ? ' new' : '';
     if (l.who === 'head') return '<div class="line head' + cls + '">' + ui('day') + ' ' + pad2(l.day) + ' / 10 — ' + esc(tr(l.title)) + '</div>';
-    if (l.who === 'narr') return '<div class="line narr' + cls + '">' + rich(tr(l.t)) + '</div>';
+    if (l.who === 'narr') return '<div class="line narr' + cls + '"><span class="txt">' + rich(tr(l.t)) + '</span></div>';
     if (l.who === 'sys') return '<div class="line sys' + cls + '">' + esc(tr(l.t)) + '</div>';
     var name = l.who === 'kiro' ? 'Kiro' : ui('you');
     var usage = l.usage ? '<span class="usage">' + esc(ui('used')) + ': ' + K.formatCredits(l.usage.used) + ' | ' + esc(ui('elapsed')) + ': ' + l.usage.elapsed + 's</span>' : '';
     return '<div class="line ' + l.who + (l.joy ? ' joy' : '') + cls + '"><span class="who">' + esc(name) + '</span><span class="txt">' + rich(tr(l.t)) + '</span>' + usage + '</div>';
   }
 
+  /* ---------- Typewriter ---------- */
+  // Only lines appended since the last render are typed. Any other re-render (language switch, etc.) shows text at once.
+  var tw = { active: false, timer: null, items: [], i: 0, pos: 0, waiters: [] };
+  var reduceMotion = !!(g.matchMedia && g.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function textNodes(root) {
+    var out = [], w = D.createTreeWalker(root, 4), n;
+    while ((n = w.nextNode())) out.push(n);
+    return out;
+  }
+
+  function cancelTyping() {
+    if (tw.timer) clearTimeout(tw.timer);
+    tw.timer = null; tw.active = false; tw.items = []; tw.waiters = [];
+  }
+
+  // Show everything that is still hidden and release anything waiting for the typing to end.
+  function finishTyping() {
+    if (!tw.active) return;
+    if (tw.timer) clearTimeout(tw.timer);
+    tw.timer = null;
+    tw.items.slice(tw.i).forEach(function (it) { it.nodes.forEach(function (n, k) { n.nodeValue = it.full[k]; }); reveal(it); });
+    tw.active = false; tw.items = [];
+    var w = tw.waiters; tw.waiters = [];
+    w.forEach(function (fn) { fn(); });
+  }
+
+  function whenTyped(fn) { if (tw.active) tw.waiters.push(fn); else fn(); }
+
+  function reveal(it) {
+    var u = it.line.querySelector('.usage');
+    if (u) u.style.visibility = '';
+  }
+
+  var PAUSE = { '。': 170, '！': 150, '？': 150, '…': 150, '、': 80, '.': 150, '!': 150, '?': 150, ',': 80 };
+
+  function startTyping(lines) {
+    cancelTyping();
+    var items = [];
+    lines.forEach(function (line) {
+      var txt = line.querySelector('.txt');
+      if (!txt) return;
+      var nodes = textNodes(txt), full = nodes.map(function (n) { return n.nodeValue; });
+      var total = full.join('').length;
+      if (!total) return;
+      nodes.forEach(function (n) { n.nodeValue = ''; });
+      var u = line.querySelector('.usage');
+      if (u) u.style.visibility = 'hidden';
+      items.push({ line: line, nodes: nodes, full: full, joined: full.join(''), total: total });
+    });
+    if (!items.length) return;
+    tw.active = true; tw.items = items; tw.i = 0; tw.pos = 0;
+    var log = $('log');
+    (function step() {
+      var it = tw.items[tw.i];
+      if (!it) { finishTyping(); return; }
+      // type one character across the line's text nodes
+      tw.pos += 1;
+      var left = tw.pos, ch = it.joined.charAt(tw.pos - 1);
+      it.nodes.forEach(function (n, k) {
+        n.nodeValue = it.full[k].slice(0, Math.max(0, left));
+        left -= it.full[k].length;
+      });
+      log.scrollTop = log.scrollHeight;
+      var base = Math.max(8, Math.min(lang === 'ja' ? 42 : 22, 2400 / it.total));
+      var d = base + (PAUSE[ch] || 0);
+      if (tw.pos >= it.total) { reveal(it); tw.i += 1; tw.pos = 0; d = 260; }
+      tw.timer = setTimeout(step, d);
+    }());
+  }
+
   function renderLog() {
     var el = $('log');
+    finishTyping();
+    var firstNew = shownLines;
     el.innerHTML = log.map(lineHtml).join('');
     shownLines = log.length;
     el.scrollTop = el.scrollHeight;
+    if (reduceMotion) return;
+    var lines = el.children, fresh = [];
+    for (var i = firstNew; i < lines.length; i++) {
+      if (/\b(kiro|player|narr)\b/.test(lines[i].className)) fresh.push(lines[i]);
+    }
+    startTyping(fresh);
   }
 
   function kbd(label) {
@@ -334,6 +413,7 @@
   }
 
   function showQueue() {
+    var after = null;
     var l = queue.shift();
     log.push(l);
     if (l.who === 'kiro') { expr = l.joy ? 'joy' : 'neutral'; sfx(l.joy ? 'sparkle' : 'click'); }
@@ -350,11 +430,12 @@
       view = { type: 'next', onNext: showQueue };
     } else if (game.isExhausted()) {
       view = { type: 'none' };
-      later(function () { triggerEnd(5); }, 1400);
+      after = function () { later(function () { triggerEnd(5); }, 1400); };
     } else {
       view = { type: 'next', onNext: function () { expr = 'neutral'; startPr(); } };
     }
     renderGame();
+    if (after) whenTyped(after);   // registered after renderGame, which is what starts the typing
   }
 
   function startPr() {
@@ -392,16 +473,18 @@
     expr = 'neutral';
     sfx(o === 'merge' ? 'thunk' : o === 'rc' ? 'magic' : 'click');
     if (pr.layer === 'bgmMode') K.audio.setMode(s.layers.bgmMode);
+    var after = null;
     if (res.endId === 3) {
       view = { type: 'none' };
-      later(function () { triggerEnd(3); }, 1600);
+      after = function () { later(function () { triggerEnd(3); }, 1600); };
     } else if (game.isExhausted()) {
       view = { type: 'none' };
-      later(function () { triggerEnd(5); }, 1400);
+      after = function () { later(function () { triggerEnd(5); }, 1400); };
     } else {
       view = { type: 'next', onNext: function () { game.advanceDay(); goDay(); } };
     }
     renderGame();
+    if (after) whenTyped(after);
   }
   function ui_en(k) { return K.UI[k].en; }
   function ui_ja(k) { return K.UI[k].ja; }
@@ -439,15 +522,17 @@
     renderGame();
 
     var toResult = function () { view = { type: 'next', onNext: function () { show('result'); } }; renderActions(); };
-    if (id === 5) {
-      later(function () {
-        sfx('vanish');
-        setKiroClass('kiro-vanish');
-        later(function () { kiroPresent = false; awayNote = false; setKiroClass(''); renderStage(); toResult(); }, 100);
-      }, 1200);
-    } else {
-      later(toResult, 600);
-    }
+    whenTyped(function () {
+      if (id === 5) {
+        later(function () {
+          sfx('vanish');
+          setKiroClass('kiro-vanish');
+          later(function () { kiroPresent = false; awayNote = false; setKiroClass(''); renderStage(); toResult(); }, 100);
+        }, 1200);
+      } else {
+        later(toResult, 600);
+      }
+    });
   }
 
   /* ---------- Events ---------- */
@@ -458,7 +543,7 @@
     var act = b.getAttribute('data-act');
     switch (act) {
       case 'choice': if (view.type === 'choices') choose(b.getAttribute('data-c')); break;
-      case 'next': if (view.type === 'next') { sfx('click'); view.onNext(); } break;
+      case 'next': if (view.type === 'next') { if (tw.active) { finishTyping(); break; } sfx('click'); view.onNext(); } break;
       case 'pr': if (view.type === 'pr') choosePr(b.getAttribute('data-o')); break;
       case 'final': if (view.type === 'final') finalChoose(Number(b.getAttribute('data-n'))); break;
       case 'ears-tpl': $('ears-input').value = tr(K.EARS_TEMPLATE); view.text = tr(K.EARS_TEMPLATE); break;
@@ -474,6 +559,8 @@
       default: break;
     }
   });
+
+  $('log').addEventListener('click', finishTyping);
 
   D.addEventListener('input', function (e) {
     if (e.target && e.target.id === 'ears-input') view.text = e.target.value;
@@ -512,7 +599,7 @@
       var o = { m: 'merge', c: 'close', r: 'rc', '1': 'merge', '2': 'close', '3': 'rc' }[k];
       if (o && !(o === 'rc' && !game.canOrder())) { hit = true; choosePr(o); }
     } else if (view.type === 'next') {
-      if (k === 'enter' || k === 'n') { hit = true; sfx('click'); view.onNext(); }
+      if (k === 'enter' || k === 'n') { hit = true; if (tw.active) finishTyping(); else { sfx('click'); view.onNext(); } }
     }
     if (hit) { e.preventDefault(); if (D.activeElement && D.activeElement.blur) D.activeElement.blur(); }
   });

@@ -114,3 +114,13 @@ EARS記法で記述する。`THE SYSTEM` はゲーム本体を指す。
 1. THE SYSTEM SHALL Web Audio API のオシレータとノイズのみで BGM と効果音を合成する。
 2. WHEN `bgmMode` レイヤーが変わった時 THE SYSTEM SHALL BGM をオルゴール / ミニマルパルス / ゴシック室内楽シンセのいずれかへ切り替える。
 3. THE SYSTEM SHALL ユーザー操作の後にだけ音声を開始し、ミュート切り替えを提供する。
+
+## R13. タイプライター表示
+
+1. WHEN 会話ログに新しい行（Kiro / 主人公 / 地の文）が追加された時 THE SYSTEM SHALL その本文を1文字ずつ順番に表示する。
+2. WHEN 言語切替やその他の再描画が行われた時 THE SYSTEM SHALL 既存の行を即時に全文表示し、タイプを再生しない。
+3. WHILE 本文を表示している間 THE SYSTEM SHALL 使用量の行（`Est. Credits Used`）を隠し、本文の表示後に表示する。
+4. WHEN 表示中に Next（または Enter）またはログがクリックされた時 THE SYSTEM SHALL 進行せずに、その時点で未表示の本文を即時に全文表示する。
+5. WHEN 全文が表示された後に Next が押された時 THE SYSTEM SHALL 次へ進む。
+6. THE SYSTEM SHALL END 5 への遷移、END 3 への遷移、END 5 の消滅演出、結果画面への遷移の待ち時間を、本文の表示が終わった後から数える。
+7. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL タイプせず、全文を即時に表示する。
