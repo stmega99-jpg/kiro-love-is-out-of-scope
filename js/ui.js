@@ -24,6 +24,7 @@
   var awayNote = false;
   var scene = null;
   var mockOn = false;
+  var resultFresh = false;   // true only for the first render after the ending, so a language switch never replays the reveal
   var endId = null;
   var savedOk = false;
   var fxExtra = null;
@@ -31,6 +32,7 @@
   var bgKey = '';
   var shownLines = 0;
   var kiroKey = '';
+  var credit = { shown: null, target: null, raf: 0 };   // what the HUD currently displays / is heading to
   var dropLayer = null;   // layer whose tombstone should fall in on the next render only
   var TOMB_LAYERS = ['affectionUI', 'bgTheme', 'itemSlot', 'dateModule'];
 
@@ -86,12 +88,36 @@
       (drop ? '<i class="dust" style="--dx:-14px"></i><i class="dust" style="--dx:0px"></i><i class="dust" style="--dx:14px"></i>' : '') + '</span>';
   }
 
+  function paintCredits(v) {
+    var c = $('hud-credits');
+    c.textContent = ui('credits') + ': ' + K.formatCredits(v);
+    c.classList.toggle('low', v <= 50);
+  }
+
+  // Big spends (Request Changes, the Day 10 order) count down on screen. The value never goes below the real balance.
+  function syncCredits(target) {
+    var c = $('hud-credits');
+    if (target === credit.target && credit.raf) return;                      // already heading there
+    if (target === credit.target) { if (credit.shown === target) paintCredits(target); else paintCredits(credit.shown); return; }
+    cancelAnimationFrame(credit.raf); credit.raf = 0;
+    var from = credit.shown;
+    credit.target = target;
+    if (from == null || reduceMotion || from - target < 1) { credit.shown = target; paintCredits(target); return; }
+    var t0 = performance.now(), dur = 900;
+    c.classList.remove('drain'); void c.offsetWidth; c.classList.add('drain');
+    (function frame(now) {
+      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      credit.shown = k >= 1 ? target : Math.max(target, from - (from - target) * e);
+      paintCredits(credit.shown);
+      if (k < 1) credit.raf = requestAnimationFrame(frame);
+      else { credit.raf = 0; c.classList.remove('drain'); }
+    }(t0));
+  }
+
   function renderHud() {
     var s = game.state, L = s.layers;
     $('hud-day').textContent = ui('day') + ' ' + pad2(s.day) + ' / 10';
-    var c = $('hud-credits');
-    c.textContent = ui('credits') + ': ' + K.formatCredits(s.credits);
-    c.classList.toggle('low', s.credits <= 50);
+    syncCredits(s.credits);
     var a = $('hud-affection');
     if (L.affectionUI === 'merge') {
       a.innerHTML = '<span class="aff-deleted">' + tombHtml(26, 29, dropLayer === 'affectionUI') + '<span>' + esc(ui('affection') + ': ' + ui('deleted')) + '</span></span>';
@@ -221,9 +247,16 @@
 
   function lineFx(idx) {
     var l = log[idx];
-    if (!l || !l.reacts) return;
+    if (!l) return;
+    if (l.mock) {   // END 2: the fake 100 / 100 bar pops in with a fanfare
+      mockOn = true;
+      sfx('jingle');
+      renderStage();
+    }
+    if (!l.reacts) return;
     expr = l.joy ? 'joy' : 'work';
     sfx(l.joy ? 'sparkle' : 'click');
+    if (l.joy && endId === 4) sfx('jingle');
     if (l.joy) { setKiroClass('kiro-joy'); burst(); }
     renderStage();
   }
@@ -372,6 +405,7 @@
 
   function renderResult() {
     var s = game.state, E = K.ENDS[endId];
+    var anim = resultFresh && !reduceMotion; resultFresh = false;
     var nm = E.name + (lang === 'ja' ? '（' + E.nameJa + '）' : '');
     var rows = [
       ['aff', ui('rAffection'), String(s.actualAffection)],
@@ -384,13 +418,26 @@
     h += '<div class="result-preview">' + K.miniStage(s.layers, 'rs') + '</div>';
     if (endId === 5) h += '<div class="saved">🕯 ' + esc(ui('lastSeen')) + '</div>';
     h += '<h3>' + esc(ui('reportTitle')) + '</h3><table class="report"><tbody>';
-    rows.forEach(function (r) { h += '<tr class="' + r[0] + '"><th scope="row">' + esc(r[1]) + '</th><td>' + esc(r[2]) + '</td></tr>'; });
-    h += '</tbody></table><div class="kiro-comment">Kiro: ' + esc(tr(K.REPORT_COMMENT)) + '</div>';
+    rows.forEach(function (r, i) {
+      var stamp = endId === 2 && r[0] === 'aff';
+      h += '<tr class="' + r[0] + (anim ? ' rv' : '') + (anim && stamp ? ' stamp' : '') + '" style="--d:' + (0.35 + i * 0.5).toFixed(2) + 's"><th scope="row">' + esc(r[1]) + '</th><td>' +
+        (stamp ? '<span class="stampv">' + esc(r[2]) + '</span>' : esc(r[2])) + '</td></tr>';
+    });
+    h += '</tbody></table><div class="kiro-comment' + (anim ? ' rv-last' : '') + '">Kiro: ' + esc(tr(K.REPORT_COMMENT)) + '</div>';
     if (savedOk) h += '<p class="saved">✔ ' + esc(ui('saved')) + '</p>';
     h += '<div class="result-actions"><button type="button" class="primary" data-act="again">' + esc(ui('playAgain')) + '</button>' +
       '<button type="button" class="secondary" data-act="open-album">' + esc(ui('album')) + '</button>' +
       '<button type="button" class="secondary" data-act="to-title">' + esc(ui('toTitle')) + '</button></div>';
     $('result').innerHTML = h;
+    if (anim && endId === 2) {
+      // The affection row stamps down at ~0.77s. Heavy thud and a small shake on impact.
+      later(function () {
+        if (screen !== 'result') return;
+        sfx('thunk');
+        var m = D.querySelector('main'); m.classList.add('thud');
+        later(function () { m.classList.remove('thud'); }, 360);
+      }, 770);
+    }
   }
 
   function renderAlbum() {
@@ -432,6 +479,7 @@
     game = K.createGame();
     log = []; queue = []; expr = 'neutral'; kiroPresent = true; awayNote = false; scene = null; mockOn = false;
     endId = null; savedOk = false; fxExtra = null; bgKey = ''; shownLines = 0; kiroKey = ''; dropLayer = null;
+    cancelAnimationFrame(credit.raf); credit.raf = 0; credit.shown = null; credit.target = null; resultFresh = false;
     $('stage-burst').innerHTML = ''; $('stage-glow').innerHTML = '';
     setKiroClass('');
     show('game');
@@ -563,23 +611,23 @@
 
     var E = K.ENDS[id];
     scene = id === 1 ? 'park' : id === 3 ? 'tombs' : null;
-    mockOn = id === 2;
+    mockOn = false;   // END 2: the mock bar appears when Kiro's line starts (see lineFx)
     fxExtra = id === 1 ? 'testlog' : id === 3 ? 'code3' : id === 4 ? 'code4' : null;
-    expr = id === 4 ? 'joy' : 'neutral';
-    if (id === 4) burst();
+    expr = 'neutral'; // END 4: she lights up when her own line starts (see lineFx)
     if (!kiroPresent && id !== 5) { kiroPresent = true; awayNote = false; }
     E.lines.forEach(function (l) {
       var o = {};
       for (var k in l) o[k] = l[k];
-      if (id === 2 && l.who === 'kiro' && res) o.usage = res;
+      if (id === 2 && l.who === 'kiro') { o.mock = true; if (res) o.usage = res; }
+      if (id === 4 && l.who === 'kiro') o.reacts = true;   // l.joy is already set in the data
       log.push(o);
     });
     view = { type: 'none' };
-    sfx(id === 3 ? 'thunk' : id === 5 ? 'click' : 'jingle');
+    sfx(id === 3 ? 'thunk' : id === 1 ? 'jingle' : null);   // END 2 / 4 / 5 have their own timed sounds
     if (id === 3 || id === 5) K.audio.stopBgm();
     renderGame();
 
-    var toResult = function () { view = { type: 'next', onNext: function () { show('result'); } }; renderActions(); };
+    var toResult = function () { view = { type: 'next', onNext: function () { resultFresh = true; show('result'); } }; renderActions(); };
     whenTyped(function () {
       if (id === 5) {
         later(function () {

@@ -134,3 +134,14 @@ EARS記法で記述する。`THE SYSTEM` はゲーム本体を指す。
 5. WHEN 選択肢 A または B に対する Kiro の返答が表示され始めた時 THE SYSTEM SHALL Kiro を伏し目にして手を小刻みに動かし、コードが流れる画面を横に表示する。表情は変えない。
 6. WHEN PR が提示された時 THE SYSTEM SHALL 作業モーションとコード画面を解除する。
 7. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL 落下、揺れ、光、星、手の動きを再生しない。
+
+## R15. エンディングの演出タイミングとクレジット表示
+
+1. WHEN END 2 に到達した時 THE SYSTEM SHALL モック用の好感度バー（`100 / 100`）を、Kiro の返答が表示され始めた時に出す。主人公の行を表示している間は出さない。
+2. WHEN END 4 に到達した時 THE SYSTEM SHALL Kiro を輝かせる演出（目、光、星）を、Kiro の返答が表示され始めた時に出す。主人公の行を表示している間は出さない。
+3. WHEN クレジットが 1 以上減った時 THE SYSTEM SHALL HUD の数字を減少前の値から実残高まで約0.9秒かけてカウントダウンし、背景を短く赤く点滅させる。
+4. THE SYSTEM SHALL カウントダウン中の表示を、実残高を下回らず、`0.00` を下回らないようにし、終了時は実残高と完全に一致させる。
+5. WHEN 結果画面が最初に表示された時 THE SYSTEM SHALL Release Report の行を上から順に表示する。言語切替では再生しない。
+6. WHEN END 2 の結果画面が表示された時 THE SYSTEM SHALL 好感度の行を、実際の内部変数の値（`0`）のままスタンプとして大きく押し、重い音と画面の小さな揺れを出す。結果表には `100 / 100` を一度も表示しない。
+7. WHERE 幅 900px 以上かつ高さ 540px 以上の時 THE SYSTEM SHALL 結果画面を左に立ち絵、右に Release Report の2列で表示し、縦スクロールなしで総評まで表示する。
+8. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL カウントダウン、行の順次表示、スタンプを再生せず、即時に表示する。
