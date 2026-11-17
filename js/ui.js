@@ -185,7 +185,7 @@
       case 'final':
         K.FINAL_CHOICES.forEach(function (fc) {
           var locked = fc.requires && !game.dateAvailable();
-          h += '<button type="button" class="opt" data-act="final" data-n="' + fc.n + '"' + (locked ? ' disabled' : '') + '><span><span class="key">' + fc.n + '</span>' + esc(tr(fc.text)) +
+          h += '<button type="button" class="opt" data-act="final" data-n="' + fc.n + '"' + (locked ? ' disabled' : '') + '><span><span class="key">' + fc.n + '</span>' + esc(tr(fc.text)) + kbd(String(fc.n)) +
             (locked ? '<span class="note">' + esc(ui('dateLocked')) + '</span>' : '') + '</span><span class="est">' + esc(tr(fc.cost)) + '</span></button>';
         });
         break;
