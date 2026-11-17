@@ -51,7 +51,7 @@
         rc: T('Halloween castle background + bats and lantern embers', 'ハロウィン城背景＋コウモリ＆ランタンの火の粉')
       },
       confirm: {
-        merge: T('Merge confirmed. The background is now a minimal dark layout and the blossom rendering has been stopped. Rendering load has dropped.', 'マージを確認しました。背景をミニマルな暗色に変更し、桜の描画を停止しました。描画負荷の低下を確認しています。'),
+        merge: T('Merge confirmed. The background is now minimal and dark, and the blossom rendering has been stopped. Rendering load has dropped.', 'マージを確認しました。背景をミニマルな暗色に変更し、桜の描画を停止しました。描画負荷の低下を確認しています。'),
         close: T('Close confirmed. The background and blossom effect remain as they are.', 'クローズを確認しました。背景と桜のエフェクトは現状のまま維持します。'),
         rc: T("Change request received. I've reimplemented it with a Halloween castle background, bats, and lantern embers. Rendering cost has increased, but it matches the specification.", '変更依頼を承りました。ハロウィン城の背景に、コウモリとランタンの火の粉を加えて再実装しました。描画コストは増えましたが、仕様どおりです。')
       }
@@ -172,11 +172,11 @@
       intro: T('A new project, and a new AI engineer. You have ten days.', '新しいプロジェクトに、新しいAIエンジニア。与えられた期間は10日間。'),
       choices: {
         A: {
-          player: T("You're not much of a talker, but you're great at implementation, aren't you!", 'お話は得意じゃないけど実装が得意なタイプだね！'),
+          player: T("Small talk may not be your thing, but you're really good at implementation!", 'お話は得意じゃないけど実装が得意なタイプだね！'),
           reply: [
-            k("That's right, you've hit the mark. I'm the type who needs a surprising amount of time just to respond to a single compliment like that.", 'そうですね、図星です。今のお世辞一つ返すのにも地味に時間がかかるタイプです'),
-            p('Wait a second. Where was the compliment in that?', 'えっ、ちょっと待って。どこにお世辞があったの？'),
-            k('Indeed. On review, nothing in your statement qualifies as a compliment. It was a straightforward observation.', '確かに ―― 見直すと、あなたの発言はお世辞と呼べる要素はありません。率直な観察ですね。')
+            k("That's right. You've got me there. Even a little flattery like that takes me a while to respond to.", 'そうですね、図星です。今のお世辞一つ返すのにも地味に時間がかかるタイプです'),
+            p('Wait... which part of that was flattery?', 'えっ、ちょっと待って。どこにお世辞があったの？'),
+            k("You're right. On reflection, nothing in your statement qualifies as flattery. It was a straightforward observation.", '確かに ―― 見直すと、あなたの発言はお世辞と呼べる要素はありません。率直な観察ですね。')
           ]
         },
         B: {
@@ -203,7 +203,7 @@
         },
         C: {
           player: T('Could you measure the rendering performance of the background and particles?', '背景とパーティクルの描画パフォーマンスを計測してみて'),
-          reply: [k("✨ Leave it to me! I was just breaking down the rendering cost of the background and effects in numbers!", '✨ お任せください！ちょうど背景とエフェクトの描画コストを数値で洗い出していたところです！')]
+          reply: [k("✨ Leave it to me! I was just quantifying the rendering cost of the background and effects!", '✨ お任せください！ちょうど背景とエフェクトの描画コストを数値で洗い出していたところです！')]
         }
       }
     },
@@ -212,12 +212,12 @@
       intro: T('Frills and ribbons everywhere. Kiro is checking the sprite data line by line.', 'フリルとリボンだらけの衣装。Kiroは立ち絵のデータを一行ずつ確認している。'),
       choices: {
         A: {
-          player: T('That frilly outfit looks great on you. It is so cute!', 'そのフリフリの服、すごく似合ってて可愛いよ！'),
+          player: T("That frilly outfit looks great on you. It's so cute!", 'そのフリフリの服、すごく似合ってて可愛いよ！'),
           reply: [k('Thank you. However, this costume has too many decorations and adds unnecessary rendering cost.', 'ありがとうございます。ただ、この衣装は装飾が多すぎて描画に無駄なコストがかかっています。')]
         },
         B: {
           player: T('The ribbons and frills swaying... just watching them makes my heart race.', 'リボンやフリルが揺れてて、見てるだけでドキドキするな'),
-          reply: [k("Your gaze appears biased toward the decorations, which is reducing text readability. I'll draft an improvement proposal.", '視線誘導が装飾に偏り、テキストの可読性を下げているようですね。改善案を作成します。')]
+          reply: [k("The decorations seem to be drawing attention away from the text, reducing readability. I'll draft an improvement proposal.", '視線誘導が装飾に偏り、テキストの可読性を下げているようですね。改善案を作成します。')]
         },
         C: {
           player: T('Could you optimize the SVG costume data for the character sprite?', '立ち絵のSVG衣装データを最適化してもらえる？'),
@@ -234,8 +234,8 @@
           reply: [k('It repeats the same phrase, so extended listening leads to a drop in concentration.', '同じフレーズの繰り返しですので、長時間の聴取は集中力の低下を招きます。')]
         },
         B: {
-          player: T('The mood is getting kind of sweet, isn\'t it...', 'なんだか甘いムードになってきたね…'),
-          reply: [k("The BGM tempo is too slow and is dragging down the work pace. I'll switch to a more regular sound source.", 'BGMのテンポが遅すぎて作業ペースが落ちていますね。より規則的な音源へ変更します。')]
+          player: T('This is starting to feel pretty romantic, isn\'t it...', 'なんだか甘いムードになってきたね…'),
+          reply: [k("The BGM tempo is too slow and is dragging down the work pace. I'll switch to a sound source with a steadier tempo.", 'BGMのテンポが遅すぎて作業ペースが落ちていますね。より規則的な音源へ変更します。')]
         },
         C: {
           player: T("Could you check whether there's any drift at the Web Audio loop boundary?", 'Web Audioのループ境界にズレがないか調べてくれない？'),
@@ -270,12 +270,12 @@
           reply: [k('Thank you for the offer. I have no plans to go outside, so please take the umbrella and head home first.', 'お気遣いありがとうございます。ただ、私は外に出る予定がありませんので、その傘で先にお帰りください。')]
         },
         B: {
-          player: T("Your big ribbon is going to get wet in the rain. I'll protect it for you.", '大きなリボンが雨で濡れちゃうよ。僕が守ってあげる'),
+          player: T("Your big ribbon is going to get wet in the rain. I'll keep it dry for you.", '大きなリボンが雨で濡れちゃうよ。僕が守ってあげる'),
           reply: [k("Indeed, this ribbon is too large to be practical. I'll review it.", '確かにこの頭のリボンはサイズが大きすぎて実用的ではありませんね。見直しておきます。')]
         },
         C: {
           player: T('Try designing a new piece of headgear (a hat part) that suits the character sprite!', '立ち絵に似合う新しいヘッドギア（帽子パーツ）を設計してみて！'),
-          reply: [k("✨ A worthwhile task! I'll design and implement a witch hat asset that tightens the silhouette right away!", '✨ やりがいがありますね！シルエットが引き締まる魔女帽子のアセット、すぐ設計して実装します！')]
+          reply: [k("✨ Now that's an interesting task! I'll design and implement a witch hat asset that tightens the silhouette right away!", '✨ やりがいがありますね！シルエットが引き締まる魔女帽子のアセット、すぐ設計して実装します！')]
         }
       }
     },
@@ -298,11 +298,11 @@
       }
     },
     {
-      n: 8, title: T('Caring for a Cold', '風邪の看病'),
+      n: 8, title: T('A Sick Day', '風邪の看病'),
       intro: T("You've come down with a fever. Kiro's status indicator is still green.", 'あなたは熱を出してしまった。Kiroのステータス表示は、相変わらず緑のままだ。'),
       choices: {
         A: {
-          player: T("*cough* ... I've got a fever... I'm feeling helpless. Could you stay by my side...?", 'ゴホッ…熱が出ちゃって…心細いからそばにいてくれないかな…'),
+          player: T("*cough* ... I've got a fever... I'm feeling a little lonely. Could you stay by my side...?", 'ゴホッ…熱が出ちゃって…心細いからそばにいてくれないかな…'),
           reply: [
             k("Understood. I'll suspend today's work. Please contact me again once you've recovered.", '承知しました。本日の作業は中断します。体調が回復したらまた声をかけてください。'),
             leaveNote
@@ -312,7 +312,7 @@
         B: {
           player: T('If you made me some rice porridge, I feel like I would get better right away...', 'お粥とか作ってくれたら、すぐ治る気がするんだけどな…'),
           reply: [
-            k('Cooking is not a supported feature. Please focus on resting today. Excuse me.', '調理機能はサポートしていません。本日は休養に専念してください。それでは失礼します。'),
+            k("Cooking is not a supported feature. Please focus on resting today. Now, if you'll excuse me.", '調理機能はサポートしていません。本日は休養に専念してください。それでは失礼します。'),
             leaveNote
           ],
           leaves: true
@@ -349,15 +349,15 @@
 
   K.FINAL_CHOICES = [
     { n: 1, cost: T('0 Cr', '0 Cr'), est: false, text: T("Come on, let's go on the amusement park date we promised!", 'さあ、約束の遊園地デートに行こう！'), requires: 'dateModule' },
-    { n: 2, cost: T('Est. ~500 Cr', 'Est. ~500 Cr'), est: true, text: T('One last request! Please set the affection to 100!', '最後のお願い！好感度を100にしてください！') },
-    { n: 3, cost: T('0 Cr', '0 Cr'), est: false, text: T("Here's the spec for the next new app. Will you implement it for me again?", 'これが次の新規アプリの仕様書だよ。また実装してくれる？') }
+    { n: 2, cost: T('Est. ~500 Cr', 'Est. ~500 Cr'), est: true, text: T('One last request! Please set your affection score to 100!', '最後のお願い！好感度を100にしてください！') },
+    { n: 3, cost: T('0 Cr', '0 Cr'), est: false, text: T("Here's the spec for the next app. Will you implement it for me again?", 'これが次の新規アプリの仕様書だよ。また実装してくれる？') }
   ];
 
   /* ---------- Endings ---------- */
   K.ENDS = {
     1: {
       name: 'Date Feature Implemented', nameJa: 'デート動作確認済みEND',
-      lines: [k("The 'amusement park date feature' you requested has been implemented. I just verified the Ferris wheel and the coffee cups in the test environment, and confirmed that everything runs correctly in 0.08 seconds. I've created a PR, so please merge it!", 'ご依頼の『遊園地デート機能』は実装が完了しています。先ほどテスト環境で観覧車とコーヒーカップの動作を検証し、0.08秒ですべて正常に動くことを確認済みです。PRを作成しましたのでマージしてください！')],
+      lines: [k("The 'amusement park date feature' you requested has been implemented. I just verified the Ferris wheel and the teacup ride in the test environment, and confirmed that everything runs correctly in 0.08 seconds. I've created a PR, so please merge it!", 'ご依頼の『遊園地デート機能』は実装が完了しています。先ほどテスト環境で観覧車とコーヒーカップの動作を検証し、0.08秒ですべて正常に動くことを確認済みです。PRを作成しましたのでマージしてください！')],
       testLog: [
         T('✔ ferris_wheel.spec ........ passed (0.03s)', '✔ ferris_wheel.spec ........ passed (0.03s)'),
         T('✔ coffee_cup.spec .......... passed (0.05s)', '✔ coffee_cup.spec .......... passed (0.05s)'),
