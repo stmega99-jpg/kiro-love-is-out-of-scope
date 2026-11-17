@@ -390,12 +390,20 @@
     var s = '<g transform="translate(' + (o.x == null ? 320 : o.x) + ',' + (o.y == null ? 18 : o.y) + ') scale(' + (o.scale || 0.93) + ')">';
     s += '<defs><linearGradient id="' + u + 'hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d68ea"/><stop offset="1" stop-color="#5a45c2"/></linearGradient>' +
       '<linearGradient id="' + u + 'hairb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a47b8"/><stop offset="1" stop-color="#43348f"/></linearGradient>' +
+      '<linearGradient id="' + u + 'sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e4dcff" stop-opacity="0"/><stop offset=".3" stop-color="#e9e2ff" stop-opacity=".95"/><stop offset=".62" stop-color="#d3c8ff" stop-opacity=".85"/><stop offset="1" stop-color="#e4dcff" stop-opacity="0"/></linearGradient>' +
+      '<clipPath id="' + u + 'fc"><ellipse cx="0" cy="122" rx="55" ry="50"/></clipPath>' +
       '<linearGradient id="' + u + 'iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3f9e"/><stop offset="1" stop-color="#58cfdc"/></linearGradient></defs>';
     s += '<defs>' + sharedDefs(u) + costumeDefs(cb, u) + '</defs>';
     s += '<ellipse cx="0" cy="388" rx="64" ry="8" fill="#000" opacity=".25"/>';
     s += '<g class="k-sway' + (work ? ' k-work' : '') + '">';
     // back hair with rounded tips
     s += '<path d="M-66 120 Q-70 54 0 50 Q70 54 66 120 L74 250 Q76 284 48 282 Q0 294 -48 282 Q-76 284 -74 250 Z" fill="url(#' + u + 'hairb)"/>';
+    // strands: dark grooves and lighter locks follow the flow of the hair
+    s += '<g fill="none" stroke-linecap="round">' +
+      '<path d="M-52 124 Q-60 192 -58 266 M-36 128 Q-42 204 -38 280 M-16 132 Q-20 212 -17 288 M16 132 Q20 212 17 288 M36 128 Q42 204 38 280 M52 124 Q60 192 58 266" stroke="#2a2166" stroke-width="2.2" opacity=".34"/>' +
+      '<path d="M-44 126 Q-50 198 -48 270 M-26 130 Q-30 208 -27 284 M26 130 Q30 208 27 284 M44 126 Q50 198 48 270" stroke="#9482f4" stroke-width="1.6" opacity=".3"/>' +
+      '<path d="M-61 130 Q-67 190 -69 248 M61 130 Q67 190 69 248" stroke="#a898ff" stroke-width="2" opacity=".38"/></g>';
+    s += '<ellipse cx="0" cy="214" rx="46" ry="64" fill="#241b5c" opacity=".3"/>';
     // legs and shoes
     s += '<rect x="-18" y="336" width="13" height="40" fill="' + P[cb].stock + '"/><rect x="5" y="336" width="13" height="40" fill="' + P[cb].stock + '"/>';
     s += '<ellipse cx="-12" cy="380" rx="14" ry="6.5" fill="#241a2e"/><ellipse cx="12" cy="380" rx="14" ry="6.5" fill="#241a2e"/>';
@@ -407,12 +415,22 @@
     s += fr.svg + fr.top;
     // head: soft rounded face
     s += '<ellipse cx="0" cy="122" rx="55" ry="50" fill="' + SKIN + '"/>';
+    s += '<g clip-path="url(#' + u + 'fc)"><path d="M60 122 Q44 92 26 108 Q12 82 0 106 Q-12 82 -26 108 Q-44 92 -60 122" fill="none" stroke="#c98d78" stroke-width="7" stroke-linejoin="round" opacity=".2"/></g>';
     // front hair: fringe, side locks with rounded ends, ahoge, highlight bands
     s += '<path d="M-58 118 Q-62 60 0 56 Q62 60 58 118 Q44 86 26 102 Q12 76 0 100 Q-12 76 -26 102 Q-44 86 -58 118 Z" fill="url(#' + u + 'hair)"/>';
     s += '<path d="M-54 118 Q-68 160 -60 200 Q-52 212 -44 200 Q-44 152 -42 126 Z M54 118 Q68 160 60 200 Q52 212 44 200 Q44 152 42 126 Z" fill="url(#' + u + 'hair)"/>';
-    s += '<path d="M0 58 Q-8 38 8 28" fill="none" stroke="#7d68ea" stroke-width="6" stroke-linecap="round"/>';
-    s += '<path d="M-36 80 Q-18 66 4 70" fill="none" stroke="#b7a8ff" stroke-width="5" stroke-linecap="round" opacity=".75"/>';
-    s += '<path d="M-58 150 Q-60 170 -56 184" fill="none" stroke="#b7a8ff" stroke-width="4" stroke-linecap="round" opacity=".6"/>';
+    s += '<path d="M0 58 Q-8 38 8 28" fill="none" stroke="#7d68ea" stroke-width="6" stroke-linecap="round"/>' +
+      '<path d="M-1 52 Q-7 38 6 31" fill="none" stroke="#b7a8ff" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>';
+    // strands on the fringe and the side locks
+    s += '<g fill="none" stroke-linecap="round">' +
+      '<path d="M-32 64 Q-37 82 -29 96 M-14 59 Q-18 76 -11 89 M14 59 Q18 76 11 89 M32 64 Q37 82 29 96" stroke="#33298a" stroke-width="1.8" opacity=".4"/>' +
+      '<path d="M-22 60 Q-26 78 -20 92 M0 57 Q-3 72 0 86 M22 60 Q26 78 20 92" stroke="#a290ff" stroke-width="1.4" opacity=".38"/>' +
+      '<path d="M-53 132 Q-63 170 -55 203 M-47 130 Q-52 166 -48 198 M53 132 Q63 170 55 203 M47 130 Q52 166 48 198" stroke="#33298a" stroke-width="1.6" opacity=".34"/>' +
+      '<path d="M-58 150 Q-60 170 -56 184" stroke="#b7a8ff" stroke-width="4" opacity=".6"/>' +
+      '<path d="M58 150 Q60 170 56 184" stroke="#b7a8ff" stroke-width="3" opacity=".32"/></g>';
+    // glossy ring across the crown
+    s += '<path d="M-47 94 Q-30 64 2 62 Q32 64 48 94" fill="none" stroke="url(#' + u + 'sheen)" stroke-width="9" stroke-linecap="round" opacity=".85"/>' +
+      '<path d="M-33 77 Q-16 67 8 69" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".5"/>';
     // small ghost hair clip
     s += '<g transform="translate(-52,146)"><path d="M-8 9 V-2 Q-8 -11 0 -11 Q8 -11 8 -2 V9 L4.5 5.5 L0 9 L-4.5 5.5 Z" fill="#f6f2ff" stroke="#9a86f0" stroke-width="1.4"/>' +
       circ(-3, -3, 1.4, '#3b2f66') + circ(3, -3, 1.4, '#3b2f66') + '</g>';

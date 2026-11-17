@@ -145,3 +145,15 @@ EARS記法で記述する。`THE SYSTEM` はゲーム本体を指す。
 6. WHEN END 2 の結果画面が表示された時 THE SYSTEM SHALL 好感度の行を、実際の内部変数の値（`0`）のままスタンプとして大きく押し、重い音と画面の小さな揺れを出す。結果表には `100 / 100` を一度も表示しない。
 7. WHERE 幅 900px 以上かつ高さ 540px 以上の時 THE SYSTEM SHALL 結果画面を左に立ち絵、右に Release Report の2列で表示し、縦スクロールなしで総評まで表示する。
 8. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL カウントダウン、行の順次表示、スタンプを再生せず、即時に表示する。
+
+## R16. タイトルの冒頭演出、結果のスタンプ、エンディングの演出タイミング
+
+1. WHEN ゲームが読み込まれた時、または結果画面からタイトルへ戻った時 THE SYSTEM SHALL タイトルの導入演出を再生する。言語切替では再生しない。
+2. THE SYSTEM SHALL 導入演出で、タイトル、`Status: Closed as Not Planned (wontfix)` のスタンプ（着地時に音と画面の揺れ）、キャッチコピー、開始ボタンの順に表示する。
+3. THE SYSTEM SHALL タイトルに、モニターに向かって作業を続ける Kiro と、`Affection: 0 / 100` のゲージを表示する。
+4. WHERE 幅 900px 以上かつ高さ 540px 以上の時 THE SYSTEM SHALL タイトルを左にテキスト、右に Kiro の2列で、縦スクロールなしで表示する。
+5. WHEN END 2 の結果画面で好感度のスタンプを再生した後に言語を切り替えた時 THE SYSTEM SHALL スタンプを再生しない。数値 `0` は大きな表示のまま維持する。
+6. WHEN END 1 に到達した時 THE SYSTEM SHALL 遊園地のシーン、テストログ、効果音を、Kiro の返答が表示され始めた時に出す。END 3 は墓場のシーン、コードログ、効果音を、ナレーションの表示開始時に出す。END 4 のコードログは Kiro の返答の表示開始時に出す。いずれも、主人公の行を表示している間は出さない。
+7. WHEN 表示がスキップされた時 THE SYSTEM SHALL 未表示の行のエンディング演出を、その行を表示した時点で出す。
+8. THE SYSTEM SHALL Kiro の髪に、毛束の濃淡、冠の艶、輪郭のリムライト、額への前髪の影を描く。
+9. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL タイトルの導入演出を再生しない。

@@ -33,9 +33,11 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #4d8dff; outli
 /* Title */
 .title-card { text-align: center; background: var(--card); border-radius: 18px; padding: 28px 16px 32px; box-shadow: 0 6px 24px rgba(80, 40, 120, .12); }
 .title-card h1 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.6rem); }
-.subtitle { font-family: var(--mono); color: #8a3b3b; margin: 6px 0; }
+.subtitle { display: inline-block; font-family: var(--mono); font-weight: 700; letter-spacing: .02em; color: #b3322b; border: 3px solid #b3322b; border-radius: 6px; padding: 2px 14px; margin: 10px 0; background: rgba(179, 50, 43, .06); transform: rotate(-2.5deg); }
 .tagline { color: #6c5a86; margin: 4px 0 8px; }
-.title-sprite { height: 260px; max-width: 360px; margin: 0 auto 8px; }
+.title-sprite { position: relative; height: 260px; max-width: 360px; margin: 0 auto 8px; }
+.title-gauge { position: absolute; left: -6%; bottom: 10%; display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 12px; padding: 6px 12px; box-shadow: 0 3px 12px rgba(80, 40, 120, .2); font-size: .85rem; }
+.title-gauge .bar { width: 90px; min-width: 0; }
 .title-sprite svg { width: 100%; height: 100%; }
 
 /* HUD */
@@ -242,6 +244,20 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
   .report th, .report td { padding: 6px 10px; }
   .result-card > .saved { margin: 2px 0; }
   .result-actions { margin-top: 10px; }
+  /* Title: text on the left, Kiro at work on the right, in one 16:9 frame. */
+  #app[data-screen="title"] { max-width: 1500px; height: 100vh; padding-bottom: 12px; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  #app[data-screen="title"] main, #screen-title { min-height: 0; height: 100%; }
+  #screen-title[hidden] { display: none; }
+  .title-card { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); column-gap: 40px; align-items: center; text-align: left; padding: 2.5vh 56px; height: 100%; min-height: 0; }
+  .title-card > h1, .title-card > .subtitle, .title-card > .tagline, .title-card > #btn-start { grid-column: 1; }
+  .title-card > h1 { font-size: clamp(2.4rem, 4.2vw, 4.4rem); line-height: 1.1; }
+  .title-card > .subtitle { justify-self: start; white-space: nowrap; font-size: clamp(.85rem, 1.05vw, 1.2rem); margin: 14px 0 10px; }
+  .title-card > .tagline { font-size: clamp(1rem, 1.5vw, 1.6rem); margin: 8px 0 14px; }
+  .title-card > #btn-start { justify-self: start; margin-top: 10px; font-size: 1.15rem; padding: 14px 30px; }
+  .title-card > .title-sprite { grid-column: 2; grid-row: 1 / span 4; height: min(76vh, 760px); max-width: none; margin: 0; }
+  .title-gauge { left: auto; right: 0; top: 64%; bottom: auto; flex-direction: column; align-items: stretch; gap: 6px; font-size: .78rem; padding: 8px 12px; }
+  .title-gauge .aff-label { white-space: nowrap; }
+  .title-gauge .bar { width: 100%; min-width: 0; height: 12px; flex: none; }
   /* Keep the END 2 mock bar clear of the layer panel. */
   .mock-bar { left: auto; right: 10px; transform: none; transform-origin: right center; width: calc(100% - 7.75rem - 34px); animation-name: pulse2; }
 }
@@ -303,14 +319,27 @@ main.thud { animation: thud .34s linear; }
 .report tr.rv { animation: rowIn .5s ease-out both; animation-delay: var(--d, 0s); }
 @keyframes rowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .report tr.stamp td { overflow: visible; }
-.stampv { display: inline-block; font-size: 1.7em; line-height: 1; animation: stamp .55s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(var(--d, 0s) + .12s); }
+.stampv { display: inline-block; font-size: 1.7em; line-height: 1; }
+.stampv.play { animation: stamp .55s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(var(--d, 0s) + .12s); }
 @keyframes stamp { 0% { opacity: 0; transform: scale(3.2); } 55% { opacity: 1; transform: scale(.9); } 100% { opacity: 1; transform: scale(1); } }
 .report tr.stamp { animation: rowIn .5s ease-out both, flashRed .9s ease-out both; animation-delay: var(--d, 0s), calc(var(--d, 0s) + .3s); }
 @keyframes flashRed { 0% { background: rgba(192, 57, 43, .28); } 100% { background: transparent; } }
 .kiro-comment.rv-last { animation: rowIn .6s ease-out 3.0s both; }
 
+/* ---- Title intro (plays once per visit) ---- */
+.title-card.fresh h1 { animation: titleIn .7s ease-out .1s both; }
+.title-card.fresh .subtitle { animation: stampIn .5s cubic-bezier(.2, 1.5, .4, 1) 1.1s both; }
+.title-card.fresh .tagline { animation: titleIn .8s ease-out 1.9s both; }
+.title-card.fresh .title-sprite { animation: kiroIn .7s ease-out .3s both; }
+.title-card.fresh .title-gauge { animation: titleIn .6s ease-out 2.3s both; }
+.title-card.fresh #btn-start { animation: titleIn .6s ease-out 2.8s both, btnPulse 2.4s ease-in-out 3.6s infinite; }
+@keyframes titleIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes stampIn { 0% { opacity: 0; transform: rotate(-2.5deg) scale(3.4); } 60% { opacity: 1; transform: rotate(-2.5deg) scale(.92); } 100% { opacity: 1; transform: rotate(-2.5deg) scale(1); } }
+@keyframes btnPulse { 50% { box-shadow: 0 0 0 8px rgba(123, 63, 176, .22); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .report tr, .stampv, .hud-credits.drain, .kiro-comment.rv-last { animation: none !important; }
+  .title-card.fresh h1, .title-card.fresh .subtitle, .title-card.fresh .tagline, .title-card.fresh .title-sprite, .title-card.fresh .title-gauge, .title-card.fresh #btn-start { animation: none !important; }
+  .report tr, .stampv.play, .hud-credits.drain, .kiro-comment.rv-last { animation: none !important; }
   .k-eye, .k-sway, .k-work .k-hand, .tomb-drop, .tomb-drop-svg, .dust, .dust-svg, .kiro-joy, .work-code, main.thud { animation: none !important; }
   .dust, .dust-svg, .stage-burst, .stage-glow { display: none; }
   .petal, .bat, .ember { display: none; }
