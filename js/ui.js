@@ -24,6 +24,7 @@
   var awayNote = false;
   var scene = null;
   var mockOn = false;
+  var titleFresh = true;   // the title intro plays on load and when coming back from a result, never on a language switch
   var resultFresh = false;   // true only for the first render after the ending, so a language switch never replays the reveal
   var endId = null;
   var savedOk = false;
@@ -74,12 +75,35 @@
     D.title = ui('pageTitle');
   }
 
+  // Little code screen next to Kiro. Shared by the title and the A / B "she keeps working" staging.
+  function workPanelHtml() {
+    var bars = '';
+    for (var wi = 0; wi < 14; wi++) bars += '<i></i>';
+    return '<div class="work-panel"><div class="work-code">' + bars + bars + '</div></div>';
+  }
+
   function renderTitle() {
     $('t-title').textContent = ui('title');
     $('t-sub').textContent = ui('subtitle');
     $('t-tag').textContent = ui('tagline');
     $('btn-start').textContent = ui('start');
-    $('t-sprite').innerHTML = '<svg viewBox="200 0 240 400" aria-hidden="true">' + K.kiroSvg({}, { x: 320, y: 18, scale: 0.93, uid: 'tt' }) + '</svg>';
+    // On the title she is already at work, eyes on the screen, next to an affection gauge that stays at 0.
+    $('t-sprite').innerHTML = '<svg viewBox="200 0 240 400" aria-hidden="true">' + K.kiroSvg({}, { x: 320, y: 18, scale: 0.93, uid: 'tt', expr: 'work' }) + '</svg>' +
+      workPanelHtml() +
+      '<div class="title-gauge"><span class="aff-label">💗 ' + esc(ui('affection')) + ': 0 / 100</span><div class="bar bar-heart"><div class="bar-fill" style="width:0"></div></div></div>';
+    var fresh = titleFresh && !reduceMotion;
+    titleFresh = false;
+    var card = D.querySelector('.title-card');
+    card.classList.toggle('fresh', fresh);
+    if (fresh) {
+      // The status stamp lands at ~1.3s.
+      later(function () {
+        if (screen !== 'title') return;
+        sfx('thunk');
+        var m = D.querySelector('main'); m.classList.add('thud');
+        later(function () { m.classList.remove('thud'); }, 360);
+      }, 1300);
+    }
   }
 
   // Tombstone icon for the HUD / slots. `drop` plays the fall-and-dust animation once.
@@ -173,11 +197,7 @@
     }
     var fx = '';
     if (!kiroPresent && awayNote) fx += '<div class="kiro-away">' + esc(ui('kiroAway')) + '</div>';
-    if (expr === 'work' && kiroPresent) {
-      var bars = '';
-      for (var wi = 0; wi < 14; wi++) bars += '<i></i>';
-      fx += '<div class="work-panel"><div class="work-code">' + bars + bars + '</div></div>';
-    }
+    if (expr === 'work' && kiroPresent) fx += workPanelHtml();
     if (mockOn) fx += '<div class="mock-bar" aria-label="mock"><span class="tag">' + esc(ui('mock')) + '</span><span class="aff-label">💗 ' + esc(ui('affection')) + ': 100 / 100</span><div class="bar bar-heart"><div class="bar-fill" style="width:100%"></div></div></div>';
     if (fxExtra === 'testlog') {
       var tl = K.ENDS[1].testLog;
@@ -200,7 +220,7 @@
   function lineHtml(l, i) {
     var cls = i >= shownLines ? ' new' : '';
     if (l.who === 'head') return '<div class="line head' + cls + '">' + ui('day') + ' ' + pad2(l.day) + ' / 10 — ' + esc(tr(l.title)) + '</div>';
-    if (l.who === 'narr') return '<div class="line narr' + cls + '"><span class="txt">' + rich(tr(l.t)) + '</span></div>';
+    if (l.who === 'narr') return '<div data-i="' + i + '" class="line narr' + cls + '"><span class="txt">' + rich(tr(l.t)) + '</span></div>';
     if (l.who === 'sys') return '<div class="line sys' + cls + '">' + esc(tr(l.t)) + '</div>';
     var name = l.who === 'kiro' ? 'Kiro' : ui('you');
     var usage = l.usage ? '<span class="usage">' + esc(ui('used')) + ': ' + K.formatCredits(l.usage.used) + ' | ' + esc(ui('elapsed')) + ': ' + l.usage.elapsed + 's</span>' : '';
@@ -253,6 +273,13 @@
       sfx('jingle');
       renderStage();
     }
+    if (l.endScene || l.endFx) {   // END 1 / 3 / 4: scene change and overlay log
+      if (l.endScene) scene = l.endScene;
+      if (l.endFx) fxExtra = l.endFx;
+      renderStage();
+    }
+    if (l.cue) sfx(l.cue);
+    if (l.stopBgm) K.audio.stopBgm();
     if (!l.reacts) return;
     expr = l.joy ? 'joy' : 'work';
     sfx(l.joy ? 'sparkle' : 'click');
@@ -421,7 +448,7 @@
     rows.forEach(function (r, i) {
       var stamp = endId === 2 && r[0] === 'aff';
       h += '<tr class="' + r[0] + (anim ? ' rv' : '') + (anim && stamp ? ' stamp' : '') + '" style="--d:' + (0.35 + i * 0.5).toFixed(2) + 's"><th scope="row">' + esc(r[1]) + '</th><td>' +
-        (stamp ? '<span class="stampv">' + esc(r[2]) + '</span>' : esc(r[2])) + '</td></tr>';
+        (stamp ? '<span class="stampv' + (anim ? ' play' : '') + '">' + esc(r[2]) + '</span>' : esc(r[2])) + '</td></tr>';
     });
     h += '</tbody></table><div class="kiro-comment' + (anim ? ' rv-last' : '') + '">Kiro: ' + esc(tr(K.REPORT_COMMENT)) + '</div>';
     if (savedOk) h += '<p class="saved">✔ ' + esc(ui('saved')) + '</p>';
@@ -610,21 +637,22 @@
     savedOk = K.History.add(game.snapshot({ id: 'r' + Date.now() + '-' + Math.floor(Math.random() * 1e6), at: Date.now(), endId: id, vanished: id === 5 }));
 
     var E = K.ENDS[id];
-    scene = id === 1 ? 'park' : id === 3 ? 'tombs' : null;
+    scene = null;     // END 1 / 3: the scene, overlay and sound come with the line that triggers them (see lineFx)
     mockOn = false;   // END 2: the mock bar appears when Kiro's line starts (see lineFx)
-    fxExtra = id === 1 ? 'testlog' : id === 3 ? 'code3' : id === 4 ? 'code4' : null;
+    fxExtra = null;
     expr = 'neutral'; // END 4: she lights up when her own line starts (see lineFx)
     if (!kiroPresent && id !== 5) { kiroPresent = true; awayNote = false; }
     E.lines.forEach(function (l) {
       var o = {};
       for (var k in l) o[k] = l[k];
       if (id === 2 && l.who === 'kiro') { o.mock = true; if (res) o.usage = res; }
-      if (id === 4 && l.who === 'kiro') o.reacts = true;   // l.joy is already set in the data
+      if (id === 1 && l.who === 'kiro') { o.endScene = 'park'; o.endFx = 'testlog'; o.cue = 'jingle'; }
+      if (id === 3) { o.endScene = 'tombs'; o.endFx = 'code3'; o.cue = 'thunk'; o.stopBgm = true; }
+      if (id === 4 && l.who === 'kiro') { o.reacts = true; o.endFx = 'code4'; }   // l.joy is already set in the data
       log.push(o);
     });
     view = { type: 'none' };
-    sfx(id === 3 ? 'thunk' : id === 1 ? 'jingle' : null);   // END 2 / 4 / 5 have their own timed sounds
-    if (id === 3 || id === 5) K.audio.stopBgm();
+    if (id === 5) K.audio.stopBgm();   // END 5 has no player line in front of it
     renderGame();
 
     var toResult = function () { view = { type: 'next', onNext: function () { resultFresh = true; show('result'); } }; renderActions(); };
@@ -656,7 +684,7 @@
       case 'ears-go': if (view.type === 'ears') resolvePr('rc', $('ears-input').value); break;
       case 'ears-back': view = { type: 'pr', pr: K.PRS[game.state.day - 1], auto: game.state.day === 8 }; renderActions(); break;
       case 'again': startGame(); break;
-      case 'to-title': clearTimers(); show('title'); break;
+      case 'to-title': clearTimers(); titleFresh = true; show('title'); break;
       case 'open-album': show('album'); break;
       case 'album-back': show(prevScreen === 'album' ? 'title' : prevScreen); break;
       case 'album-clear':
