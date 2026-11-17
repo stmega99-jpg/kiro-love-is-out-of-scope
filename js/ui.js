@@ -29,6 +29,7 @@
   var fxExtra = null;
   var timers = [];
   var bgKey = '';
+  var shownLines = 0;
 
   function tr(o) { return o[lang]; }
   function ui(key) { return K.UI[key][lang]; }
@@ -141,18 +142,20 @@
     $('stage-fx').innerHTML = fx;
   }
 
-  function lineHtml(l) {
-    if (l.who === 'head') return '<div class="line head">' + ui('day') + ' ' + pad2(l.day) + ' / 10 — ' + esc(tr(l.title)) + '</div>';
-    if (l.who === 'narr') return '<div class="line narr">' + rich(tr(l.t)) + '</div>';
-    if (l.who === 'sys') return '<div class="line sys">' + esc(tr(l.t)) + '</div>';
+  function lineHtml(l, i) {
+    var cls = i >= shownLines ? ' new' : '';
+    if (l.who === 'head') return '<div class="line head' + cls + '">' + ui('day') + ' ' + pad2(l.day) + ' / 10 — ' + esc(tr(l.title)) + '</div>';
+    if (l.who === 'narr') return '<div class="line narr' + cls + '">' + rich(tr(l.t)) + '</div>';
+    if (l.who === 'sys') return '<div class="line sys' + cls + '">' + esc(tr(l.t)) + '</div>';
     var name = l.who === 'kiro' ? 'Kiro' : ui('you');
     var usage = l.usage ? '<span class="usage">' + esc(ui('used')) + ': ' + K.formatCredits(l.usage.used) + ' | ' + esc(ui('elapsed')) + ': ' + l.usage.elapsed + 's</span>' : '';
-    return '<div class="line ' + l.who + (l.joy ? ' joy' : '') + '"><span class="who">' + esc(name) + '</span><span class="txt">' + rich(tr(l.t)) + '</span>' + usage + '</div>';
+    return '<div class="line ' + l.who + (l.joy ? ' joy' : '') + cls + '"><span class="who">' + esc(name) + '</span><span class="txt">' + rich(tr(l.t)) + '</span>' + usage + '</div>';
   }
 
   function renderLog() {
     var el = $('log');
     el.innerHTML = log.map(lineHtml).join('');
+    shownLines = log.length;
     el.scrollTop = el.scrollHeight;
   }
 
@@ -283,7 +286,7 @@
     K.audio.setMode('initial');
     game = K.createGame();
     log = []; queue = []; expr = 'neutral'; kiroPresent = true; awayNote = false; scene = null; mockOn = false;
-    endId = null; savedOk = false; fxExtra = null; bgKey = '';
+    endId = null; savedOk = false; fxExtra = null; bgKey = ''; shownLines = 0;
     setKiroClass('');
     show('game');
     goDay();
@@ -439,7 +442,7 @@
       case 'next': if (view.type === 'next') { sfx('click'); view.onNext(); } break;
       case 'pr': if (view.type === 'pr') choosePr(b.getAttribute('data-o')); break;
       case 'final': if (view.type === 'final') finalChoose(Number(b.getAttribute('data-n'))); break;
-      case 'ears-tpl': $('ears-input').value = K.EARS_TEMPLATE; view.text = K.EARS_TEMPLATE; break;
+      case 'ears-tpl': $('ears-input').value = tr(K.EARS_TEMPLATE); view.text = tr(K.EARS_TEMPLATE); break;
       case 'ears-go': if (view.type === 'ears') resolvePr('rc', $('ears-input').value); break;
       case 'ears-back': view = { type: 'pr', pr: K.PRS[game.state.day - 1], auto: game.state.day === 8 }; renderActions(); break;
       case 'again': startGame(); break;
@@ -464,6 +467,8 @@
     renderTop();
   });
   function setLang(l) {
+    // An untouched template follows the language switch; user-edited text is kept.
+    if (view.type === 'ears' && view.text === K.EARS_TEMPLATE[lang]) view.text = K.EARS_TEMPLATE[l];
     lang = l;
     try { g.localStorage.setItem('klo.lang', l); } catch (e) { /* ignore */ }
     renderAll();

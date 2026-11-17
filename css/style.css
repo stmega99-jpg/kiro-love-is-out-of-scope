@@ -95,7 +95,8 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #4d8dff; outli
 /* Dialog + frames */
 .dialog { margin-top: 10px; padding: 12px; border-radius: 14px; }
 .log { max-height: 280px; overflow-y: auto; padding-right: 4px; scroll-behavior: smooth; }
-.line { margin: 6px 0; padding: 6px 10px; border-radius: 10px; animation: fadeIn .25s ease-out; }
+.line { margin: 6px 0; padding: 6px 10px; border-radius: 10px; }
+.line.new { animation: fadeIn .25s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .line .who { font-weight: 700; margin-right: 6px; }
 .line .usage { display: block; font-family: var(--mono); font-size: .78rem; opacity: .75; margin-top: 2px; }
@@ -195,5 +196,5 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
 
 @media (prefers-reduced-motion: reduce) {
   .petal, .bat, .ember { display: none; }
-  .bat .wing, .flick, .twinkle, .wheel, .bubble, .line, .mock-bar, .kiro-in { animation: none !important; }
+  .bat .wing, .flick, .twinkle, .wheel, .bubble, .line.new, .mock-bar, .kiro-in { animation: none !important; }
 }

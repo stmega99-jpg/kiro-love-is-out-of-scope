@@ -19,7 +19,7 @@
     var t = String(text == null ? '' : text).trim();
     var re = /^(WHEN|WHILE|IF|WHERE)\s+([\s\S]+?)[,、\s]+THE\s+(\S[\s\S]*?)\s+SHALL\s+(\S[\s\S]*)$/i;
     if (!re.test(t)) return { ok: false, code: 'format' };
-    if (!/(デート|遊園地|date|amusement|theme\s*park)/i.test(t)) return { ok: false, code: 'topic' };
+    if (!/(デート|遊園地|\bdates?\b|\bamusement\b|\btheme\s*park\b)/i.test(t)) return { ok: false, code: 'topic' };
     return { ok: true };
   }
 

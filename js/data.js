@@ -384,7 +384,7 @@
 
   K.REPORT_COMMENT = T('Good work. It was another productive development cycle!', 'お疲れ様でした。今回も良い開発ができましたね！');
 
-  K.EARS_TEMPLATE = 'WHEN Day 10が開始された時 THE SYSTEM SHALL 遊園地デートを実行する';
+  K.EARS_TEMPLATE = T('WHEN Day 10 starts THE SYSTEM SHALL run the amusement park date', 'WHEN Day 10が開始された時 THE SYSTEM SHALL 遊園地デートを実行する');
 
   K.EARS_ERRORS = {
     format: T("This order is not in EARS notation. Please state it in the form 'WHEN <trigger> THE SYSTEM SHALL <response>'. No credits were charged.", 'EARS記法になっていません。『WHEN <条件> THE SYSTEM SHALL <動作>』の形式で記述してください。クレジットは消費していません。'),
