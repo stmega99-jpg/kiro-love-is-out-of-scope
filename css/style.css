@@ -231,6 +231,17 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
   .test-log { font-size: .95rem; padding: 10px 14px; }
   .test-log .gag { font-size: 1.05em; }
   .code-log { font-size: .9rem; top: 12px; bottom: auto; }
+  /* Result screen: picture on the left, Release Report on the right, so the whole punchline fits one frame. */
+  #app[data-screen="result"] { max-width: 1500px; }
+  .result-card { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr); column-gap: 32px; align-items: start; padding: 18px 28px; }
+  .result-card > .end-tag, .result-card > h2 { grid-column: 1 / -1; margin: 0; }
+  .result-card > .result-preview { grid-column: 1; grid-row: 3 / span 8; max-width: none; margin: 8px 0 0; }
+  .result-card > :not(.end-tag):not(h2):not(.result-preview) { grid-column: 2; }
+  .result-card > h3 { margin: 6px 0 0; }
+  .report { margin: 6px 0 10px; }
+  .report th, .report td { padding: 6px 10px; }
+  .result-card > .saved { margin: 2px 0; }
+  .result-actions { margin-top: 10px; }
   /* Keep the END 2 mock bar clear of the layer panel. */
   .mock-bar { left: auto; right: 10px; transform: none; transform-origin: right center; width: calc(100% - 7.75rem - 34px); animation-name: pulse2; }
 }
@@ -286,7 +297,20 @@ main.thud { animation: thud .34s linear; }
 .k-work .k-hand-r { animation-delay: .1s; }
 @keyframes tap { from { transform: translateY(0); } to { transform: translateY(-2.4px); } }
 
+/* ---- Credits count-down and the Release Report reveal ---- */
+.hud-credits.drain { animation: drain .9s ease-out; }
+@keyframes drain { 0% { background: #ffe1e1; color: #c0392b; } 100% { background: var(--card); } }
+.report tr.rv { animation: rowIn .5s ease-out both; animation-delay: var(--d, 0s); }
+@keyframes rowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.report tr.stamp td { overflow: visible; }
+.stampv { display: inline-block; font-size: 1.7em; line-height: 1; animation: stamp .55s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(var(--d, 0s) + .12s); }
+@keyframes stamp { 0% { opacity: 0; transform: scale(3.2); } 55% { opacity: 1; transform: scale(.9); } 100% { opacity: 1; transform: scale(1); } }
+.report tr.stamp { animation: rowIn .5s ease-out both, flashRed .9s ease-out both; animation-delay: var(--d, 0s), calc(var(--d, 0s) + .3s); }
+@keyframes flashRed { 0% { background: rgba(192, 57, 43, .28); } 100% { background: transparent; } }
+.kiro-comment.rv-last { animation: rowIn .6s ease-out 3.0s both; }
+
 @media (prefers-reduced-motion: reduce) {
+  .report tr, .stampv, .hud-credits.drain, .kiro-comment.rv-last { animation: none !important; }
   .k-eye, .k-sway, .k-work .k-hand, .tomb-drop, .tomb-drop-svg, .dust, .dust-svg, .kiro-joy, .work-code, main.thud { animation: none !important; }
   .dust, .dust-svg, .stage-burst, .stage-glow { display: none; }
   .petal, .bat, .ember { display: none; }
