@@ -31,6 +31,8 @@
   var bgKey = '';
   var shownLines = 0;
   var kiroKey = '';
+  var dropLayer = null;   // layer whose tombstone should fall in on the next render only
+  var TOMB_LAYERS = ['affectionUI', 'bgTheme', 'itemSlot', 'dateModule'];
 
   function tr(o) { return o[lang]; }
   function ui(key) { return K.UI[key][lang]; }
@@ -78,6 +80,12 @@
     $('t-sprite').innerHTML = '<svg viewBox="200 0 240 400" aria-hidden="true">' + K.kiroSvg({}, { x: 320, y: 18, scale: 0.93, uid: 'tt' }) + '</svg>';
   }
 
+  // Tombstone icon for the HUD / slots. `drop` plays the fall-and-dust animation once.
+  function tombHtml(w, h, drop) {
+    return '<span class="tomb-wrap">' + K.tombSvg(w, h, drop ? 'tomb-drop' : '') +
+      (drop ? '<i class="dust" style="--dx:-14px"></i><i class="dust" style="--dx:0px"></i><i class="dust" style="--dx:14px"></i>' : '') + '</span>';
+  }
+
   function renderHud() {
     var s = game.state, L = s.layers;
     $('hud-day').textContent = ui('day') + ' ' + pad2(s.day) + ' / 10';
@@ -86,7 +94,7 @@
     c.classList.toggle('low', s.credits <= 50);
     var a = $('hud-affection');
     if (L.affectionUI === 'merge') {
-      a.innerHTML = '<span class="aff-deleted">' + K.tombSvg(26, 29) + '<span>' + esc(ui('affection') + ': ' + ui('deleted')) + '</span></span>';
+      a.innerHTML = '<span class="aff-deleted">' + tombHtml(26, 29, dropLayer === 'affectionUI') + '<span>' + esc(ui('affection') + ': ' + ui('deleted')) + '</span></span>';
     } else if (L.affectionUI === 'rc') {
       a.innerHTML = '<span class="aff-label">⚙ ' + esc(ui('specCompletion')) + ': 100%</span><div class="bar bar-gold"><div class="bar-fill"></div></div>';
     } else {
@@ -96,14 +104,14 @@
 
   function renderSlots() {
     var L = game.state.layers, h;
-    if (L.itemSlot === 'merge') h = K.tombSvg(40, 45) + '<span>' + esc(ui('itemDeleted')) + '</span>';
+    if (L.itemSlot === 'merge') h = tombHtml(40, 45, dropLayer === 'itemSlot') + '<span>' + esc(ui('itemDeleted')) + '</span>';
     else if (L.itemSlot === 'rc') h = K.cauldronSvg() + '<span>' + esc(ui('brewing')) + '</span>';
     else h = K.giftSvg() + '<span>' + esc(ui('giftSlot')) + '</span>';
     $('slot-item').innerHTML = h;
 
     var d = $('slot-date');
     d.classList.toggle('col', L.dateModule === 'rc');
-    if (L.dateModule === 'merge') d.innerHTML = K.tombSvg(40, 45) + '<span>' + esc(ui('dateDeleted')) + '</span>';
+    if (L.dateModule === 'merge') d.innerHTML = tombHtml(40, 45, dropLayer === 'dateModule') + '<span>' + esc(ui('dateDeleted')) + '</span>';
     else if (L.dateModule === 'rc') d.innerHTML = '<span class="slot-title">📜 ' + esc(ui('dateEars')) + '</span><div class="date-ears">' + esc(game.state.earsText) + '</div>';
     else d.innerHTML = '<button type="button" class="date-btn" id="btn-date">⚠️ ' + esc(ui('dateBtn')) + '</button>';
   }
@@ -119,7 +127,10 @@
 
   function setKiroClass(c) {
     kiroClass = c;
-    $('stage-kiro').className = 'stage-layer ' + c;
+    var el = $('stage-kiro');
+    el.className = 'stage-layer';
+    void el.offsetWidth;   // force a reflow so the same animation can play again on a later day
+    el.className = 'stage-layer ' + c;
   }
 
   function renderStage() {
@@ -127,7 +138,7 @@
     var key = L.bgTheme + '|' + scene;
     if (key !== bgKey) {
       bgKey = key;
-      $('stage-bg').innerHTML = K.stageSvg(K.bgInner(L.bgTheme, 'st', scene));
+      $('stage-bg').innerHTML = K.stageSvg(K.bgInner(L.bgTheme, 'st', scene, dropLayer === 'bgTheme'));
     }
     var kk = [kiroPresent, expr, L.costumeBody, L.costumeHead].join('|');
     if (kk !== kiroKey) {
@@ -136,6 +147,11 @@
     }
     var fx = '';
     if (!kiroPresent && awayNote) fx += '<div class="kiro-away">' + esc(ui('kiroAway')) + '</div>';
+    if (expr === 'work' && kiroPresent) {
+      var bars = '';
+      for (var wi = 0; wi < 14; wi++) bars += '<i></i>';
+      fx += '<div class="work-panel"><div class="work-code">' + bars + bars + '</div></div>';
+    }
     if (mockOn) fx += '<div class="mock-bar" aria-label="mock"><span class="tag">' + esc(ui('mock')) + '</span><span class="aff-label">💗 ' + esc(ui('affection')) + ': 100 / 100</span><div class="bar bar-heart"><div class="bar-fill" style="width:100%"></div></div></div>';
     if (fxExtra === 'testlog') {
       var tl = K.ENDS[1].testLog;
@@ -162,7 +178,7 @@
     if (l.who === 'sys') return '<div class="line sys' + cls + '">' + esc(tr(l.t)) + '</div>';
     var name = l.who === 'kiro' ? 'Kiro' : ui('you');
     var usage = l.usage ? '<span class="usage">' + esc(ui('used')) + ': ' + K.formatCredits(l.usage.used) + ' | ' + esc(ui('elapsed')) + ': ' + l.usage.elapsed + 's</span>' : '';
-    return '<div class="line ' + l.who + (l.joy ? ' joy' : '') + cls + '"><span class="who">' + esc(name) + '</span><span class="txt">' + rich(tr(l.t)) + '</span>' + usage + '</div>';
+    return '<div data-i="' + i + '" class="line ' + l.who + (l.joy ? ' joy' : '') + cls + '"><span class="who">' + esc(name) + '</span><span class="txt">' + rich(tr(l.t)) + '</span>' + usage + '</div>';
   }
 
   /* ---------- Typewriter ---------- */
@@ -186,7 +202,11 @@
     if (!tw.active) return;
     if (tw.timer) clearTimeout(tw.timer);
     tw.timer = null;
-    tw.items.slice(tw.i).forEach(function (it) { it.nodes.forEach(function (n, k) { n.nodeValue = it.full[k]; }); reveal(it); });
+    tw.items.slice(tw.i).forEach(function (it) {
+      if (!it.started) { it.started = true; lineFx(it.idx); }
+      it.nodes.forEach(function (n, k) { n.nodeValue = it.full[k]; });
+      reveal(it);
+    });
     tw.active = false; tw.items = [];
     var w = tw.waiters; tw.waiters = [];
     w.forEach(function (fn) { fn(); });
@@ -197,6 +217,15 @@
   function reveal(it) {
     var u = it.line.querySelector('.usage');
     if (u) u.style.visibility = '';
+  }
+
+  function lineFx(idx) {
+    var l = log[idx];
+    if (!l || !l.reacts) return;
+    expr = l.joy ? 'joy' : 'work';
+    sfx(l.joy ? 'sparkle' : 'click');
+    if (l.joy) { setKiroClass('kiro-joy'); burst(); }
+    renderStage();
   }
 
   var PAUSE = { '。': 170, '！': 150, '？': 150, '…': 150, '、': 80, '.': 150, '!': 150, '?': 150, ',': 80 };
@@ -213,7 +242,7 @@
       nodes.forEach(function (n) { n.nodeValue = ''; });
       var u = line.querySelector('.usage');
       if (u) u.style.visibility = 'hidden';
-      items.push({ line: line, nodes: nodes, full: full, joined: full.join(''), total: total });
+      items.push({ line: line, nodes: nodes, full: full, joined: full.join(''), total: total, idx: Number(line.getAttribute('data-i')), started: false, fast: /\bjoy\b/.test(line.className) });
     });
     if (!items.length) return;
     tw.active = true; tw.items = items; tw.i = 0; tw.pos = 0;
@@ -223,13 +252,14 @@
       if (!it) { finishTyping(); return; }
       // type one character across the line's text nodes
       tw.pos += 1;
+      if (!it.started) { it.started = true; lineFx(it.idx); }
       var left = tw.pos, ch = it.joined.charAt(tw.pos - 1);
       it.nodes.forEach(function (n, k) {
         n.nodeValue = it.full[k].slice(0, Math.max(0, left));
         left -= it.full[k].length;
       });
       log.scrollTop = log.scrollHeight;
-      var base = Math.max(8, Math.min(lang === 'ja' ? 42 : 22, 2400 / it.total));
+      var base = Math.max(8, Math.min(lang === 'ja' ? 42 : 22, 2400 / it.total)) * (it.fast ? 0.55 : 1);
       var d = base + (PAUSE[ch] || 0);
       if (tw.pos >= it.total) { reveal(it); tw.i += 1; tw.pos = 0; d = 260; }
       tw.timer = setTimeout(step, d);
@@ -243,11 +273,11 @@
     el.innerHTML = log.map(lineHtml).join('');
     shownLines = log.length;
     el.scrollTop = el.scrollHeight;
-    if (reduceMotion) return;
     var lines = el.children, fresh = [];
     for (var i = firstNew; i < lines.length; i++) {
       if (/\b(kiro|player|narr)\b/.test(lines[i].className)) fresh.push(lines[i]);
     }
+    if (reduceMotion) { fresh.forEach(function (ln) { lineFx(Number(ln.getAttribute('data-i'))); }); return; }
     startTyping(fresh);
   }
 
@@ -315,6 +345,29 @@
 
   function renderGame() {
     renderHud(); renderSlots(); renderInspector(); renderStage(); renderLog(); renderActions(); applyFrame();
+    dropLayer = null;
+  }
+
+  /* ---------- Staging for the gags ---------- */
+  var SPARK_POS = [[34, 24], [62, 20], [28, 42], [70, 38], [46, 14], [56, 30], [22, 30], [76, 26], [40, 36], [66, 48]];
+  function burst() {
+    var h = '';
+    $('stage-glow').innerHTML = '<div class="joy-glow"></div>';   // behind Kiro, so it never washes her out
+    SPARK_POS.forEach(function (p, i) {
+      h += '<span class="spark" style="left:' + p[0] + '%;top:' + p[1] + '%;--t:' + (i * 0.09).toFixed(2) + 's;--sz:' + (14 + (i % 3) * 6) + 'px">✦</span>';
+    });
+    $('stage-burst').innerHTML = h;
+    later(function () { $('stage-burst').innerHTML = ''; $('stage-glow').innerHTML = ''; }, 2800);
+  }
+
+  // The tombstone lands ~0.42s after the PR is merged: sound and a small screen shake on impact.
+  function thud() {
+    later(function () {
+      sfx('thunk');
+      var m = D.querySelector('main');
+      m.classList.add('thud');
+      later(function () { m.classList.remove('thud'); }, 360);
+    }, 420);
   }
 
   function renderResult() {
@@ -378,7 +431,8 @@
     K.audio.setMode('initial');
     game = K.createGame();
     log = []; queue = []; expr = 'neutral'; kiroPresent = true; awayNote = false; scene = null; mockOn = false;
-    endId = null; savedOk = false; fxExtra = null; bgKey = ''; shownLines = 0; kiroKey = '';
+    endId = null; savedOk = false; fxExtra = null; bgKey = ''; shownLines = 0; kiroKey = ''; dropLayer = null;
+    $('stage-burst').innerHTML = ''; $('stage-glow').innerHTML = '';
     setKiroClass('');
     show('game');
     goDay();
@@ -416,7 +470,9 @@
     var after = null;
     var l = queue.shift();
     log.push(l);
-    if (l.who === 'kiro') { expr = l.joy ? 'joy' : 'neutral'; sfx(l.joy ? 'sparkle' : 'click'); }
+    // A / B: she keeps working with her eyes on the screen. C: the only time she lights up.
+    // The reaction fires when her line starts to appear, not while the player's line is still typing.
+    if (l.who === 'kiro') l.reacts = true;
     if (l.leave) {
       setKiroClass('kiro-out');
       var leaveDay = game.state.day;
@@ -471,7 +527,8 @@
     log.push({ who: 'sys', t: T(ui_en('chose') + ': ' + OPT_NAME[o], ui_ja('chose') + ': ' + OPT_NAME[o]) });
     log.push({ who: 'kiro', t: pr.confirm[o], usage: o === 'rc' ? res : null });
     expr = 'neutral';
-    sfx(o === 'merge' ? 'thunk' : o === 'rc' ? 'magic' : 'click');
+    if (o === 'merge' && TOMB_LAYERS.indexOf(pr.layer) >= 0) { dropLayer = pr.layer; thud(); }
+    else sfx(o === 'merge' ? 'thunk' : o === 'rc' ? 'magic' : 'click');
     if (pr.layer === 'bgmMode') K.audio.setMode(s.layers.bgmMode);
     var after = null;
     if (res.endId === 3) {
@@ -509,6 +566,7 @@
     mockOn = id === 2;
     fxExtra = id === 1 ? 'testlog' : id === 3 ? 'code3' : id === 4 ? 'code4' : null;
     expr = id === 4 ? 'joy' : 'neutral';
+    if (id === 4) burst();
     if (!kiroPresent && id !== 5) { kiroPresent = true; awayNote = false; }
     E.lines.forEach(function (l) {
       var o = {};

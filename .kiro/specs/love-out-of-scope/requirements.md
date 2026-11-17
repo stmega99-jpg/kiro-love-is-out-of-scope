@@ -124,3 +124,13 @@ EARS記法で記述する。`THE SYSTEM` はゲーム本体を指す。
 5. WHEN 全文が表示された後に Next が押された時 THE SYSTEM SHALL 次へ進む。
 6. THE SYSTEM SHALL END 5 への遷移、END 3 への遷移、END 5 の消滅演出、結果画面への遷移の待ち時間を、本文の表示が終わった後から数える。
 7. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL タイプせず、全文を即時に表示する。
+
+## R14. 笑いどころの演出
+
+1. WHEN `Merge` により UI が墓標に置き換わる時（好感度バー、プレゼント枠、デート、暗黒背景） THE SYSTEM SHALL 墓標を上から落下させ、着地時に砂ぼこり、画面の小さな揺れ、効果音を出す。
+2. THE SYSTEM SHALL 墓標の落下を、そのマージの描画で1回だけ再生し、言語切替などの再描画では再生しない。
+3. WHEN 選択肢 C に対する Kiro の返答が表示され始めた時 THE SYSTEM SHALL Kiro を跳ねさせ、背後に光、周囲に星を出す。主人公の行を打っている間は出さない。
+4. WHILE Kiro の C の返答を表示している間 THE SYSTEM SHALL 通常より速く文字を表示する。
+5. WHEN 選択肢 A または B に対する Kiro の返答が表示され始めた時 THE SYSTEM SHALL Kiro を伏し目にして手を小刻みに動かし、コードが流れる画面を横に表示する。表情は変えない。
+6. WHEN PR が提示された時 THE SYSTEM SHALL 作業モーションとコード画面を解除する。
+7. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL 落下、揺れ、光、星、手の動きを再生しない。
