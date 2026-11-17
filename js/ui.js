@@ -300,6 +300,7 @@
   function goDay() {
     var d = K.DAYS[game.state.day - 1];
     if (!kiroPresent) { kiroPresent = true; awayNote = false; setKiroClass('kiro-in'); }
+    else if (kiroClass === 'kiro-out') setKiroClass('');   // fast input: the exit animation never got to finish
     expr = 'neutral';
     log.push({ who: 'head', day: d.n, title: d.title });
     log.push({ who: 'narr', t: d.intro });
@@ -330,7 +331,12 @@
     if (l.who === 'kiro') { expr = l.joy ? 'joy' : 'neutral'; sfx(l.joy ? 'sparkle' : 'click'); }
     if (l.leave) {
       setKiroClass('kiro-out');
-      later(function () { kiroPresent = false; awayNote = true; setKiroClass(''); renderStage(); }, 850);
+      var leaveDay = game.state.day;
+      // Ignore the timer if the player already moved past this day (fast input) and Kiro has returned.
+      later(function () {
+        if (game.state.day !== leaveDay) return;
+        kiroPresent = false; awayNote = true; setKiroClass(''); renderStage();
+      }, 850);
     }
     if (queue.length) {
       view = { type: 'next', onNext: showQueue };
