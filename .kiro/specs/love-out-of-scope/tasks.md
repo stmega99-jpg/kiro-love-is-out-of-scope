@@ -1,0 +1,43 @@
+# Tasks: Kiro: Love Is Out of Scope
+
+- [x] 1. プロジェクト基盤
+  - [x] 1.1 `.kiro/steering/project-rules.md` を作成する
+  - [x] 1.2 `requirements.md` / `design.md` / `tasks.md` を作成する
+  - [x] 1.3 `README.md` を更新する（MIT、遊び方）
+- [x] 2. データ定義 (`js/data.js`)
+  - [x] 2.1 Day 1〜9 の A/B/C 返答 27 件（EN/JA）
+  - [x] 2.2 Day 1 A の主人公ツッコミ「どこにお世辞があったの？」を挿入する
+  - [x] 2.3 Day 10 の最終選択 3 件
+  - [x] 2.4 PR #1〜#9 の内容、各選択肢の効果、確認セリフ（EN/JA）
+  - [x] 2.5 END 1〜5 の台詞、Release Report 文言、UI文言
+- [x] 3. ゲームロジック (`js/state.js`)
+  - [x] 3.1 `actualAffection` を書き込み不可の定数 `0` にする
+  - [x] 3.2 `spend()` で Day 1〜10 すべての残高を `0.00` にクランプする
+  - [x] 3.3 会話・PR・最終選択の費用と所要時間を計算する
+  - [x] 3.4 `isExhausted()`（Day 1〜9 かつ `credits <= 0.50`）
+  - [x] 3.5 PR 解決（1日1レイヤー）、PR #9 Merge で END 3
+  - [x] 3.6 EARS 検証
+  - [x] 3.7 履歴の保存・読込・消去（`localStorage`、失敗時は無視）
+- [x] 4. 描画 (`js/render.js`)
+  - [x] 4.1 立ち絵（衣装3種 × 帽子3種 × 表情）とフリル数 15 / 2 / 24
+  - [x] 4.2 背景3種（春・暗黒・ハロウィン城）と END 用シーン（遊園地、墓場）
+  - [x] 4.3 墓標、HUDの好感度バー3種、大釜、デートスロット
+  - [x] 4.4 ミニステージ（アルバム用）
+- [x] 5. 音声 (`js/audio.js`)
+  - [x] 5.1 BGM 3種（オルゴール / パルス / ゴシック室内楽）
+  - [x] 5.2 SFX とミュート
+- [x] 6. UI (`js/ui.js`, `css/style.css`, `index.html`)
+  - [x] 6.1 タイトル、HUD、ステージ、ログ、アクション領域
+  - [x] 6.2 会話フロー、返答の複数行表示、使用量表示
+  - [x] 6.3 PR カードと Day 7 の EARS 入力
+  - [x] 6.4 Day 8 の退室と自動通知
+  - [x] 6.5 Day 10 の最終選択
+  - [x] 6.6 END 1〜5 の演出（END 2 のモックバー、END 5 の0.1秒消滅）
+  - [x] 6.7 Release Report と総評
+  - [x] 6.8 Release History（保存、一覧、全消去）。END 5 は消滅前に保存する
+  - [x] 6.9 EN/JA トグル、会話枠3種、`playerInput` の `rc` ショートカット
+- [x] 7. 検証
+  - [x] 7.1 ロジックのスクリプト検証（クランプ、枯渇優先順位、END 到達、レイヤー独立性）
+  - [x] 7.2 ブラウザで全 END と言語切替を通し確認する
+- [ ] 8. 公開
+  - [ ] 8.1 ブランチを push して PR を作成する（GitHub への書き込みが 403 のため未完了）
