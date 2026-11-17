@@ -138,13 +138,21 @@
     if (!kiroPresent && awayNote) fx += '<div class="kiro-away">' + esc(ui('kiroAway')) + '</div>';
     if (mockOn) fx += '<div class="mock-bar" aria-label="mock"><span class="tag">' + esc(ui('mock')) + '</span><span class="aff-label">💗 ' + esc(ui('affection')) + ': 100 / 100</span><div class="bar bar-heart"><div class="bar-fill" style="width:100%"></div></div></div>';
     if (fxExtra === 'testlog') {
-      fx += '<div class="test-log">' + K.ENDS[1].testLog.map(function (l) { return esc(tr(l)); }).join('<br>') + '</div>';
+      var tl = K.ENDS[1].testLog;
+      // The last line is the punchline ("Participants: 0 ..."), so it is emphasised.
+      fx += '<div class="test-log">' + tl.map(function (l, i) {
+        return i === tl.length - 1 ? '<span class="gag">' + esc(tr(l)) + '</span>' : esc(tr(l));
+      }).join('<br>') + '</div>';
     } else if (fxExtra === 'code3') {
       fx += '<div class="code-log">$ build --target=final | 0 errors, 0 humans</div>';
     } else if (fxExtra === 'code4') {
       fx += '<div class="code-log">$ touch requirements.md</div>';
     }
     $('stage-fx').innerHTML = fx;
+    // Ending scenes with a text overlay take over the stage (the wide layout hides the corner panels).
+    var col = $('stage').parentNode;
+    col.classList.toggle('ending', !!fxExtra);
+    col.classList.toggle('ending-testlog', fxExtra === 'testlog');
   }
 
   function lineHtml(l, i) {

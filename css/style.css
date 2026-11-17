@@ -73,7 +73,8 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #4d8dff; outli
 .mock-bar .tag { font-family: var(--mono); font-size: .7rem; background: #ff4f93; color: #fff; padding: 0 6px; border-radius: 4px; }
 @keyframes pulse { 50% { transform: translateX(-50%) scale(1.03); } }
 
-.test-log { position: absolute; left: 12px; top: 12px; background: rgba(10, 20, 14, .88); color: #7dffb0; font-family: var(--mono); font-size: clamp(.62rem, 1.6vw, .85rem); padding: 8px 12px; border-radius: 8px; line-height: 1.5; max-width: 62%; }
+.test-log { position: absolute; left: 12px; top: 12px; background: rgba(10, 20, 14, .9); color: #7dffb0; font-family: var(--mono); font-size: clamp(.62rem, 1.6vw, .85rem); padding: 8px 12px; border-radius: 8px; line-height: 1.5; max-width: calc(100% - 24px); overflow-wrap: anywhere; }
+.test-log .gag { color: #ffd86b; font-weight: 700; }
 .code-log { position: absolute; right: 12px; bottom: 12px; background: rgba(10, 20, 14, .88); color: #7dffb0; font-family: var(--mono); font-size: clamp(.62rem, 1.6vw, .85rem); padding: 6px 12px; border-radius: 8px; }
 .code-log::after { content: "_"; animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
@@ -224,6 +225,12 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
   .log { flex: 1 1 auto; min-height: 0; max-height: none; }
   .actions { flex: 0 0 auto; max-height: 55%; overflow-y: auto; }
   .hud { margin-bottom: 6px; }
+  /* END 1 / 3 / 4: overlays get the whole stage, so the layer panel and slots step aside. */
+  .stage-col.ending .side { display: none; }
+  .stage-col.ending-testlog #stage-kiro svg { transform: scale(.82); transform-origin: 50% 100%; }
+  .test-log { font-size: .95rem; padding: 10px 14px; }
+  .test-log .gag { font-size: 1.05em; }
+  .code-log { font-size: .9rem; top: 12px; bottom: auto; }
   /* Keep the END 2 mock bar clear of the layer panel. */
   .mock-bar { left: auto; right: 10px; transform: none; transform-origin: right center; width: calc(100% - 7.75rem - 34px); animation-name: pulse2; }
 }
