@@ -194,7 +194,14 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
 .bubble { animation: bub 1.8s ease-in infinite; animation-delay: var(--t, 0s); }
 @keyframes bub { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-22px); opacity: 0; } }
 
+/* Kiro idle motion: blink and a very light sway */
+.k-eye { transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
+@keyframes blink { 0%, 56%, 62%, 100% { transform: scaleY(1); } 59% { transform: scaleY(.08); } }
+.k-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 5s ease-in-out infinite; }
+@keyframes sway { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(.7deg) translateY(-2px); } }
+
 @media (prefers-reduced-motion: reduce) {
+  .k-eye, .k-sway { animation: none !important; }
   .petal, .bat, .ember { display: none; }
   .bat .wing, .flick, .twinkle, .wheel, .bubble, .line.new, .mock-bar, .kiro-in { animation: none !important; }
 }

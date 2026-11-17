@@ -133,7 +133,8 @@
   };
 
   /* ---------- Kiro sprite ---------- */
-  var SKIN = '#ffe2cf', HAIR = '#6a54d6', HAIR_D = '#4f3fa8';
+  // Chibi-leaning proportions: big head, short body, sweater-paw sleeves.
+  var SKIN = '#ffe4d2', HAIR_D = '#4f3fa8';
 
   var COSTUMES = {
     initial: { body: '#ffb6d3', skirt: '#ffcde1', trim: '#fff2f8', accent: '#ff8fba', stock: '#f4d6e4' },
@@ -143,91 +144,123 @@
 
   function circ(x, y, r, f, extra) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + f + '"' + (extra || '') + '/>'; }
 
-  // Returns { svg, count } so the frill total is verifiable.
+  // Returns { svg, count } so the frill total is verifiable (15 / 2 / 24).
   function frills(kind) {
     var c = COSTUMES[kind], list = [], i;
     if (kind === 'initial') {
-      for (i = 0; i < 9; i++) list.push(circ(-78 + i * 19.5, 345, 11, c.trim, ' stroke="#ffc2da" stroke-width="1.5"'));
-      for (i = -1; i <= 1; i++) list.push(circ(i * 12, 171, 7, c.trim));
-      list.push(circ(-62, 258, 9, c.trim), circ(62, 258, 9, c.trim));
-      list.push('<path d="M0 250 C-22 232 -26 262 0 252 C26 262 22 232 0 250 Z" fill="' + c.accent + '"/>');
+      for (i = 0; i < 9; i++) list.push(circ(-72 + i * 18, 338, 10, c.trim, ' stroke="#ffc2da" stroke-width="1.5"'));
+      for (i = -1; i <= 1; i++) list.push(circ(i * 11, 189, 6.5, c.trim));
+      list.push(circ(-52, 262, 8, c.trim), circ(52, 262, 8, c.trim));
+      list.push('<path d="M0 252 C-22 234 -26 264 0 254 C26 264 22 234 0 252 Z" fill="' + c.accent + '"/>');
     } else if (kind === 'merge') {
-      list.push(circ(-62, 260, 6, c.trim), circ(62, 260, 6, c.trim));
+      list.push(circ(-52, 262, 5, c.trim), circ(52, 262, 5, c.trim));
     } else {
-      for (i = 0; i < 14; i++) list.push(circ(-78 + i * 12, 345, 9, c.trim, ' stroke="' + c.accent + '" stroke-width="1.5"'));
-      for (i = -2; i <= 2; i++) list.push(circ(i * 12, 171, 6, c.trim));
-      list.push(circ(-64, 250, 7, c.trim), circ(-60, 264, 7, c.trim), circ(64, 250, 7, c.trim), circ(60, 264, 7, c.trim));
-      list.push('<path d="M0 250 C-24 230 -28 264 0 252 C28 264 24 230 0 250 Z" fill="' + c.accent + '"/>');
+      for (i = 0; i < 14; i++) list.push(circ(-72 + i * 11.08, 338, 8, c.trim, ' stroke="' + c.accent + '" stroke-width="1.5"'));
+      for (i = -2; i <= 2; i++) list.push(circ(i * 11, 189, 5.5, c.trim));
+      list.push(circ(-54, 258, 6.5, c.trim), circ(-50, 268, 6.5, c.trim), circ(54, 258, 6.5, c.trim), circ(50, 268, 6.5, c.trim));
+      list.push('<path d="M0 252 C-24 232 -28 266 0 254 C28 266 24 232 0 252 Z" fill="' + c.accent + '"/>');
     }
     return { svg: list.join(''), count: list.length };
   }
   K.frillCount = function (kind) { return frills(kind).count; };
 
+  // Headwear is authored around the old head position; the wrapper lowers it onto the larger head.
   function headwear(kind) {
+    var s;
     if (kind === 'initial') {
-      return '<g transform="translate(-36,62)">' +
+      s = '<g transform="translate(-36,62)">' +
         '<path d="M0 0 C-44 -40 -58 18 0 10 Z" fill="#ff8fba" stroke="#ff6fa4" stroke-width="2"/>' +
         '<path d="M0 0 C44 -40 58 18 0 10 Z" fill="#ff8fba" stroke="#ff6fa4" stroke-width="2"/>' +
         '<path d="M-4 8 L-18 38 L-6 32 L0 44 Z M4 8 L18 38 L6 32 L0 44 Z" fill="#ff77ab"/>' +
         circ(0, 5, 8, '#ff5f9d') + '</g>';
+      return '<g transform="translate(-6,20)">' + s + '</g>';
     }
     if (kind === 'merge') {
-      return '<ellipse cx="0" cy="66" rx="60" ry="11" fill="#101015"/>' +
+      s = '<ellipse cx="0" cy="66" rx="62" ry="11" fill="#101015"/>' +
         '<path d="M-36 66 L8 -14 L38 66 Z" fill="#101015"/>' +
         '<path d="M-32 58 L36 58 L38 66 L-36 66 Z" fill="#3b2f66"/>';
+      return '<g transform="translate(0,18)">' + s + '</g>';
     }
-    var s = '<ellipse cx="0" cy="68" rx="68" ry="12" fill="#1a0f2e" stroke="#7b3fb0" stroke-width="2"/>';
+    s = '<ellipse cx="0" cy="68" rx="68" ry="12" fill="#1a0f2e" stroke="#7b3fb0" stroke-width="2"/>';
     for (var i = 0; i < 11; i++) s += circ(-60 + i * 12, 76 - Math.sin(i / 10 * Math.PI) * 4, 5, '#d8c4ff');
     s += '<path d="M-40 68 Q-12 12 -6 -8 Q16 -12 26 -4 Q8 14 40 68 Z" fill="#1a0f2e" stroke="#7b3fb0" stroke-width="2"/>';
     s += '<path d="M-34 56 L36 56 L40 68 L-40 68 Z" fill="#7b3fb0"/>';
     s += '<g transform="translate(22,58)">' + circ(0, 0, 11, '#120812', ' stroke="#8b3fb8" stroke-width="2"') + circ(0, 0, 7, '#1d0c22', ' stroke="#6b2a8f" stroke-width="1.5"') +
       '<path d="M0 0 m-3 0 a3 3 0 1 1 3 3" fill="none" stroke="#8b3fb8" stroke-width="1.5"/>' +
       '<path d="M-10 6 q-12 2 -14 10 q10 0 14 -6 Z M10 6 q12 2 14 10 q-10 0 -14 -6 Z" fill="#1c3a2a"/></g>';
-    return s;
+    return '<g transform="translate(0,18)">' + s + '</g>';
   }
 
   function star(x, y, s, d) {
     return '<path class="twinkle" style="--t:' + d + 's" transform="translate(' + x + ',' + y + ') scale(' + s + ')" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2Z" fill="#fff6a8" stroke="#ffd45e" stroke-width=".8"/>';
   }
 
+  // One big eye. `side` is -1 (left) or 1 (right). `joy` makes it a little larger with a star glint.
+  function eye(side, joy, u) {
+    var ry = joy ? 15.5 : 14, rx = joy ? 11.5 : 11;
+    var s = '<g transform="translate(' + (side * 21) + ',128)"><g class="k-eye">';
+    s += '<ellipse rx="' + rx + '" ry="' + ry + '" fill="url(#' + u + 'iris)"/>';
+    s += '<ellipse rx="6.2" ry="' + (ry - 5) + '" cy="1.5" fill="#1b2350"/>';
+    s += circ(-3.5 * side, -5, joy ? 4.6 : 4, '#fff');
+    if (joy) s += '<path transform="translate(' + (4 * side) + ',5) scale(.55)" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2Z" fill="#fff"/>';
+    else s += circ(4 * side, 5, 2, '#fff', ' opacity=".9"');
+    s += '<path d="M' + (-rx - 1) + ' -5 Q0 ' + (-ry - 4) + ' ' + (rx + 1) + ' -5" fill="none" stroke="#1f2a44" stroke-width="3.2" stroke-linecap="round"/>';
+    s += '<path d="M' + (side * (rx + 1)) + ' -5 l' + (side * 4) + ' 2" stroke="#1f2a44" stroke-width="2.4" stroke-linecap="round"/>';
+    return s + '</g></g>';
+  }
+
   K.kiroSvg = function (layers, o) {
     o = o || {};
     layers = layers || {};
-    var cb = layers.costumeBody || 'initial', ch = layers.costumeHead || 'initial';
-    var c = COSTUMES[cb] || COSTUMES.initial, joy = o.expr === 'joy';
-    var fr = frills(cb in COSTUMES ? cb : 'initial');
-    var s = '<g transform="translate(' + (o.x == null ? 320 : o.x) + ',' + (o.y == null ? 18 : o.y) + ') scale(' + (o.scale || 0.93) + ')"' + (o.cls ? ' class="' + o.cls + '"' : '') + '>';
-    s += '<ellipse cx="0" cy="392" rx="70" ry="9" fill="#000" opacity=".25"/>';
-    // back hair
-    s += '<path d="M-60 100 Q-62 48 0 44 Q62 48 60 100 L74 252 Q0 278 -74 252 Z" fill="' + HAIR_D + '"/>';
-    // legs
-    s += '<rect x="-22" y="340" width="15" height="48" fill="' + c.stock + '"/><rect x="7" y="340" width="15" height="48" fill="' + c.stock + '"/>';
-    s += '<ellipse cx="-16" cy="390" rx="14" ry="6" fill="#241a2e"/><ellipse cx="16" cy="390" rx="14" ry="6" fill="#241a2e"/>';
-    // arms
-    s += '<path d="M-38 176 L-62 262" stroke="' + c.body + '" stroke-width="15" stroke-linecap="round"/><path d="M38 176 L62 262" stroke="' + c.body + '" stroke-width="15" stroke-linecap="round"/>';
-    s += circ(-64, 272, 8, SKIN) + circ(64, 272, 8, SKIN);
+    var u = (o.uid || 'k') + '-';
+    var cb = COSTUMES[layers.costumeBody] ? layers.costumeBody : 'initial';
+    var ch = { initial: 1, merge: 1, rc: 1 }[layers.costumeHead] ? layers.costumeHead : 'initial';
+    var c = COSTUMES[cb], joy = o.expr === 'joy';
+    var fr = frills(cb);
+    var s = '<g transform="translate(' + (o.x == null ? 320 : o.x) + ',' + (o.y == null ? 18 : o.y) + ') scale(' + (o.scale || 0.93) + ')">';
+    s += '<defs><linearGradient id="' + u + 'hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d68ea"/><stop offset="1" stop-color="#5a45c2"/></linearGradient>' +
+      '<linearGradient id="' + u + 'hairb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a47b8"/><stop offset="1" stop-color="#43348f"/></linearGradient>' +
+      '<linearGradient id="' + u + 'iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3f9e"/><stop offset="1" stop-color="#58cfdc"/></linearGradient></defs>';
+    s += '<ellipse cx="0" cy="388" rx="64" ry="8" fill="#000" opacity=".25"/>';
+    s += '<g class="k-sway">';
+    // back hair with rounded tips
+    s += '<path d="M-66 120 Q-70 54 0 50 Q70 54 66 120 L74 250 Q76 284 48 282 Q0 294 -48 282 Q-76 284 -74 250 Z" fill="url(#' + u + 'hairb)"/>';
+    // legs and shoes
+    s += '<rect x="-18" y="336" width="13" height="40" fill="' + c.stock + '"/><rect x="5" y="336" width="13" height="40" fill="' + c.stock + '"/>';
+    s += '<ellipse cx="-12" cy="380" rx="14" ry="6.5" fill="#241a2e"/><ellipse cx="12" cy="380" rx="14" ry="6.5" fill="#241a2e"/>';
+    // sweater-paw sleeves: little hands peek out under the cuffs
+    s += '<path d="M-32 196 L-50 250" stroke="' + c.body + '" stroke-width="17" stroke-linecap="round"/><path d="M32 196 L50 250" stroke="' + c.body + '" stroke-width="17" stroke-linecap="round"/>';
+    s += circ(-54, 265, 6, SKIN) + circ(54, 265, 6, SKIN);
+    s += circ(-52, 255, 10, c.body) + circ(52, 255, 10, c.body);
     // body
-    s += '<rect x="-10" y="146" width="20" height="26" fill="' + SKIN + '"/>';
-    s += '<path d="M-36 168 L36 168 L42 252 L-42 252 Z" fill="' + c.body + '"/>';
-    s += '<path d="M-44 245 L44 245 L80 345 L-80 345 Z" fill="' + c.skirt + '"/>';
+    s += '<rect x="-9" y="164" width="18" height="26" fill="' + SKIN + '"/>';
+    s += '<path d="M-31 184 L31 184 L38 254 L-38 254 Z" fill="' + c.body + '"/>';
+    s += '<path d="M-40 246 L40 246 L74 338 L-74 338 Z" fill="' + c.skirt + '"/>';
     s += fr.svg;
-    // head
-    s += circ(0, 105, 46, SKIN);
-    s += '<path d="M-48 100 Q-48 50 0 48 Q48 50 48 100 Q32 70 14 86 Q0 64 -14 86 Q-34 72 -48 100 Z" fill="' + HAIR + '"/>';
-    s += '<path d="M-48 100 Q-58 140 -52 176 Q-40 150 -42 110 Z M48 100 Q58 140 52 176 Q40 150 42 110 Z" fill="' + HAIR + '"/>';
+    // head: soft rounded face
+    s += '<ellipse cx="0" cy="122" rx="55" ry="50" fill="' + SKIN + '"/>';
+    // front hair: fringe, side locks with rounded ends, ahoge, highlight bands
+    s += '<path d="M-58 118 Q-62 60 0 56 Q62 60 58 118 Q44 86 26 102 Q12 76 0 100 Q-12 76 -26 102 Q-44 86 -58 118 Z" fill="url(#' + u + 'hair)"/>';
+    s += '<path d="M-54 118 Q-68 160 -60 200 Q-52 212 -44 200 Q-44 152 -42 126 Z M54 118 Q68 160 60 200 Q52 212 44 200 Q44 152 42 126 Z" fill="url(#' + u + 'hair)"/>';
+    s += '<path d="M0 58 Q-8 38 8 28" fill="none" stroke="#7d68ea" stroke-width="6" stroke-linecap="round"/>';
+    s += '<path d="M-36 80 Q-18 66 4 70" fill="none" stroke="#b7a8ff" stroke-width="5" stroke-linecap="round" opacity=".75"/>';
+    s += '<path d="M-58 150 Q-60 170 -56 184" fill="none" stroke="#b7a8ff" stroke-width="4" stroke-linecap="round" opacity=".6"/>';
+    // small ghost hair clip
+    s += '<g transform="translate(-52,146)"><path d="M-8 9 V-2 Q-8 -11 0 -11 Q8 -11 8 -2 V9 L4.5 5.5 L0 9 L-4.5 5.5 Z" fill="#f6f2ff" stroke="#9a86f0" stroke-width="1.4"/>' +
+      circ(-3, -3, 1.4, '#3b2f66') + circ(3, -3, 1.4, '#3b2f66') + '</g>';
+    // face
+    s += eye(-1, joy, u) + eye(1, joy, u);
+    s += '<ellipse cx="-35" cy="145" rx="9" ry="5" fill="#ff8fa3" opacity="' + (joy ? '.6' : '.35') + '"/><ellipse cx="35" cy="145" rx="9" ry="5" fill="#ff8fa3" opacity="' + (joy ? '.6' : '.35') + '"/>';
     if (joy) {
-      s += '<path d="M-26 112 Q-18 98 -10 112" fill="none" stroke="#1f2a44" stroke-width="3.2" stroke-linecap="round"/><path d="M10 112 Q18 98 26 112" fill="none" stroke="#1f2a44" stroke-width="3.2" stroke-linecap="round"/>';
-      s += '<ellipse cx="-30" cy="124" rx="8" ry="5" fill="#ff9aa8" opacity=".7"/><ellipse cx="30" cy="124" rx="8" ry="5" fill="#ff9aa8" opacity=".7"/>';
-      s += '<path d="M-11 126 Q0 144 11 126 Z" fill="#d94f6a"/>';
-      s += star(-62, 70, 1.4, 0) + star(66, 84, 1.1, .4) + star(-52, 130, .9, .8) + star(58, 40, 1, 1.2);
+      s += '<path d="M-32 104 Q-21 97 -10 101 M10 101 Q21 97 32 104" fill="none" stroke="' + HAIR_D + '" stroke-width="2.2" stroke-linecap="round"/>';
+      s += '<path d="M-6 150 Q0 158 6 150 Z" fill="#d94f6a" stroke="#d94f6a" stroke-width="1.5" stroke-linejoin="round"/>';
+      s += star(-62, 96, 1.1, 0) + star(64, 108, .9, .6);
     } else {
-      s += '<ellipse cx="-18" cy="110" rx="5.5" ry="8" fill="#1f2a44"/><ellipse cx="18" cy="110" rx="5.5" ry="8" fill="#1f2a44"/>';
-      s += circ(-16, 107, 2, '#fff') + circ(20, 107, 2, '#fff');
-      s += '<path d="M-26 96 H-10 M10 96 H26" stroke="' + HAIR_D + '" stroke-width="2.4" stroke-linecap="round"/>';
-      s += '<path d="M-8 130 H8" stroke="#b05a6a" stroke-width="2.6" stroke-linecap="round"/>';
+      s += '<path d="M-31 107 Q-21 103 -11 106 M11 106 Q21 103 31 107" fill="none" stroke="' + HAIR_D + '" stroke-width="2.2" stroke-linecap="round"/>';
+      s += '<path d="M-5 151 Q-2.5 153.5 0 151 Q2.5 153.5 5 151" fill="none" stroke="#b05a6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
     }
-    s += headwear(ch in { initial: 1, merge: 1, rc: 1 } ? ch : 'initial');
-    s += '</g>';
+    s += headwear(ch);
+    s += '</g></g>';
     return s;
   };
 
@@ -256,7 +289,7 @@
   // Static full picture for the Release History album.
   K.miniStage = function (layers, uid, o) {
     o = o || {};
-    var inner = K.bgInner(layers.bgTheme, uid) + K.kiroSvg(layers, { expr: o.expr });
+    var inner = K.bgInner(layers.bgTheme, uid) + K.kiroSvg(layers, { expr: o.expr, uid: uid });
     return '<svg class="mini-stage" viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Kiro">' + inner + '</svg>';
   };
 }(window));
