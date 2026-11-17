@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kiro: Love Is Out of Scope</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app" data-screen="title">
+    <header class="topbar">
+      <div class="brand" id="brand">Kiro: Love Is Out of Scope</div>
+      <div class="topbar-actions">
+        <button id="btn-album" class="chip" type="button"></button>
+        <button id="btn-sound" class="chip" type="button" aria-pressed="true"></button>
+        <div class="lang" role="group" aria-label="Language">
+          <button id="lang-en" class="chip" type="button">EN</button>
+          <button id="lang-ja" class="chip" type="button">JA</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Title -->
+      <section id="screen-title" class="screen">
+        <div class="title-card">
+          <h1 id="t-title"></h1>
+          <p class="subtitle" id="t-sub"></p>
+          <p class="tagline" id="t-tag"></p>
+          <div class="title-sprite" id="t-sprite"></div>
+          <button id="btn-start" class="primary" type="button"></button>
+        </div>
+      </section>
+
+      <!-- Game -->
+      <section id="screen-game" class="screen" hidden>
+        <div class="hud">
+          <div class="hud-day" id="hud-day"></div>
+          <div class="hud-credits" id="hud-credits"></div>
+          <div class="hud-affection" id="hud-affection"></div>
+        </div>
+        <div class="main-grid">
+          <div class="stage" id="stage">
+            <div class="stage-layer" id="stage-bg"></div>
+            <div class="stage-layer" id="stage-kiro"></div>
+            <div class="stage-fx" id="stage-fx"></div>
+          </div>
+          <aside class="side">
+            <div class="slot" id="slot-item"></div>
+            <div class="slot" id="slot-date"></div>
+            <div class="slot inspector" id="inspector"></div>
+          </aside>
+        </div>
+        <div class="dialog frame-initial" id="dialog">
+          <div class="log" id="log" aria-live="polite"></div>
+          <div class="actions" id="actions"></div>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section id="screen-result" class="screen" hidden>
+        <div class="result-card" id="result"></div>
+      </section>
+
+      <!-- Album -->
+      <section id="screen-album" class="screen" hidden>
+        <div class="album" id="album"></div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
