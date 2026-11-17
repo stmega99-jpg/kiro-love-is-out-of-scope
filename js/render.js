@@ -118,9 +118,10 @@
     var out = '';
     out += '<defs><linearGradient id="' + u + 'tb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0a10"/><stop offset="1" stop-color="#181822"/></linearGradient></defs>';
     out += '<rect width="640" height="400" fill="url(#' + u + 'tb)"/>';
-    out += '<rect x="40" y="70" width="140" height="90" rx="6" fill="#0f1a14" stroke="#2a4a38" stroke-width="3"/>';
-    out += '<text x="52" y="100" font-size="11" font-family="monospace" fill="#5dff9a">0 errors,</text><text x="52" y="120" font-size="11" font-family="monospace" fill="#5dff9a">0 humans_</text>';
-    [60, 150, 240, 400, 490, 580].forEach(function (x, i) { out += tomb(x, 392 - (i % 2) * 6, 1.05); });
+    // Kept inside x = 130..510: a near-square stage (1080p capture) crops the sides of the 640-wide scene.
+    out += '<rect x="132" y="64" width="116" height="82" rx="6" fill="#0f1a14" stroke="#2a4a38" stroke-width="3"/>';
+    out += '<text x="143" y="94" font-size="11" font-family="monospace" fill="#5dff9a">0 errors,</text><text x="143" y="114" font-size="11" font-family="monospace" fill="#5dff9a">0 humans_</text>';
+    [146, 198, 252, 388, 442, 494].forEach(function (x, i) { out += tomb(x, 392 - (i % 2) * 6, 1.05); });
     return out;
   }
 

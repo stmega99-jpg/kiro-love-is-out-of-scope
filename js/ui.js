@@ -138,13 +138,21 @@
     if (!kiroPresent && awayNote) fx += '<div class="kiro-away">' + esc(ui('kiroAway')) + '</div>';
     if (mockOn) fx += '<div class="mock-bar" aria-label="mock"><span class="tag">' + esc(ui('mock')) + '</span><span class="aff-label">💗 ' + esc(ui('affection')) + ': 100 / 100</span><div class="bar bar-heart"><div class="bar-fill" style="width:100%"></div></div></div>';
     if (fxExtra === 'testlog') {
-      fx += '<div class="test-log">' + K.ENDS[1].testLog.map(function (l) { return esc(tr(l)); }).join('<br>') + '</div>';
+      var tl = K.ENDS[1].testLog;
+      // The last line is the punchline ("Participants: 0 ..."), so it is emphasised.
+      fx += '<div class="test-log">' + tl.map(function (l, i) {
+        return i === tl.length - 1 ? '<span class="gag">' + esc(tr(l)) + '</span>' : esc(tr(l));
+      }).join('<br>') + '</div>';
     } else if (fxExtra === 'code3') {
       fx += '<div class="code-log">$ build --target=final | 0 errors, 0 humans</div>';
     } else if (fxExtra === 'code4') {
       fx += '<div class="code-log">$ touch requirements.md</div>';
     }
     $('stage-fx').innerHTML = fx;
+    // Ending scenes with a text overlay take over the stage (the wide layout hides the corner panels).
+    var col = $('stage').parentNode;
+    col.classList.toggle('ending', !!fxExtra);
+    col.classList.toggle('ending-testlog', fxExtra === 'testlog');
   }
 
   function lineHtml(l, i) {
@@ -300,6 +308,7 @@
   function goDay() {
     var d = K.DAYS[game.state.day - 1];
     if (!kiroPresent) { kiroPresent = true; awayNote = false; setKiroClass('kiro-in'); }
+    else if (kiroClass === 'kiro-out') setKiroClass('');   // fast input: the exit animation never got to finish
     expr = 'neutral';
     log.push({ who: 'head', day: d.n, title: d.title });
     log.push({ who: 'narr', t: d.intro });
@@ -330,7 +339,12 @@
     if (l.who === 'kiro') { expr = l.joy ? 'joy' : 'neutral'; sfx(l.joy ? 'sparkle' : 'click'); }
     if (l.leave) {
       setKiroClass('kiro-out');
-      later(function () { kiroPresent = false; awayNote = true; setKiroClass(''); renderStage(); }, 850);
+      var leaveDay = game.state.day;
+      // Ignore the timer if the player already moved past this day (fast input) and Kiro has returned.
+      later(function () {
+        if (game.state.day !== leaveDay) return;
+        kiroPresent = false; awayNote = true; setKiroClass(''); renderStage();
+      }, 850);
     }
     if (queue.length) {
       view = { type: 'next', onNext: showQueue };

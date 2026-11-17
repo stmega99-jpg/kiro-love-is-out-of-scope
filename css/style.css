@@ -54,8 +54,8 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #4d8dff; outli
 .aff-deleted { display: flex; align-items: center; gap: 8px; color: #666; }
 
 /* Stage */
-.main-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; }
-@media (max-width: 760px) { .main-grid { grid-template-columns: 1fr; } }
+.main-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.stage-col { min-width: 0; }
 .stage { position: relative; aspect-ratio: 8 / 5; border-radius: 14px; overflow: hidden; background: #222; box-shadow: 0 4px 16px rgba(0, 0, 0, .25); }
 .stage-layer, .stage-fx { position: absolute; inset: 0; }
 .stage-layer svg { width: 100%; height: 100%; display: block; }
@@ -73,13 +73,16 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #4d8dff; outli
 .mock-bar .tag { font-family: var(--mono); font-size: .7rem; background: #ff4f93; color: #fff; padding: 0 6px; border-radius: 4px; }
 @keyframes pulse { 50% { transform: translateX(-50%) scale(1.03); } }
 
-.test-log { position: absolute; left: 12px; top: 12px; background: rgba(10, 20, 14, .88); color: #7dffb0; font-family: var(--mono); font-size: clamp(.62rem, 1.6vw, .85rem); padding: 8px 12px; border-radius: 8px; line-height: 1.5; max-width: 62%; }
+.test-log { position: absolute; left: 12px; top: 12px; background: rgba(10, 20, 14, .9); color: #7dffb0; font-family: var(--mono); font-size: clamp(.62rem, 1.6vw, .85rem); padding: 8px 12px; border-radius: 8px; line-height: 1.5; max-width: calc(100% - 24px); overflow-wrap: anywhere; }
+.test-log .gag { color: #ffd86b; font-weight: 700; }
 .code-log { position: absolute; right: 12px; bottom: 12px; background: rgba(10, 20, 14, .88); color: #7dffb0; font-family: var(--mono); font-size: clamp(.62rem, 1.6vw, .85rem); padding: 6px 12px; border-radius: 8px; }
 .code-log::after { content: "_"; animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 
 /* Side */
-.side { display: flex; flex-direction: column; gap: 8px; }
+.side { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.side .slot { flex: 1 1 180px; }
+.side .inspector { flex-basis: 100%; }
 .slot { background: var(--card); border-radius: 12px; padding: 8px 10px; box-shadow: 0 2px 8px rgba(80, 40, 120, .1); font-size: .85rem; min-height: 56px; display: flex; align-items: center; gap: 8px; }
 .slot .slot-title { font-weight: 700; font-size: .75rem; color: #7a6a94; display: block; }
 .slot.col { flex-direction: column; align-items: stretch; }
@@ -93,7 +96,7 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #4d8dff; outli
 .tomb-svg { flex: none; }
 
 /* Dialog + frames */
-.dialog { margin-top: 10px; padding: 12px; border-radius: 14px; }
+.dialog { padding: 12px; border-radius: 14px; }
 .log { max-height: 280px; overflow-y: auto; padding-right: 4px; scroll-behavior: smooth; }
 .line { margin: 6px 0; padding: 6px 10px; border-radius: 10px; }
 .line.new { animation: fadeIn .25s ease-out; }
@@ -199,6 +202,39 @@ kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid currentColo
 @keyframes blink { 0%, 56%, 62%, 100% { transform: scaleY(1); } 59% { transform: scaleY(.08); } }
 .k-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 5s ease-in-out infinite; }
 @keyframes sway { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(.7deg) translateY(-2px); } }
+
+/* Wide / video layout (16:9): stage on the left, dialogue on the right, everything visible without scrolling. */
+@media (min-width: 900px) and (min-height: 540px) {
+  html { font-size: clamp(16px, 1.25vw, 24px); }
+  #app[data-screen="game"] { max-width: 1760px; height: 100vh; padding: 4px 16px 12px; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  #app[data-screen="game"] .topbar { padding: 2px 0 6px; }
+  #app[data-screen="game"] main { min-height: 0; }
+  #screen-game { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+  #screen-game[hidden] { display: none; }
+  .main-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); min-height: 0; height: 100%; }
+  .stage-col { position: relative; min-height: 0; height: 100%; }
+  .stage { aspect-ratio: auto; height: 100%; }
+  /* Layer panel and slots float over the stage corners, leaving the centre for Kiro. */
+  .side { position: absolute; inset: 8px; margin: 0; display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto 1fr auto; gap: 8px; pointer-events: none; }
+  .side .slot { flex: none; pointer-events: auto; background: rgba(255, 255, 255, .88); backdrop-filter: blur(2px); font-size: .72rem; min-height: 0; padding: 5px 8px; }
+  .side .inspector { grid-column: 1; grid-row: 1; align-self: start; width: 12.5em; font-size: .62rem; gap: 0; }
+  .side #slot-item { grid-column: 1; grid-row: 3; align-self: end; }
+  .side #slot-date { grid-column: 3; grid-row: 3; align-self: end; max-width: 14em; }
+  .side .slot svg { max-height: 3.6rem; width: auto; }
+  .dialog { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+  .log { flex: 1 1 auto; min-height: 0; max-height: none; }
+  .actions { flex: 0 0 auto; max-height: 55%; overflow-y: auto; }
+  .hud { margin-bottom: 6px; }
+  /* END 1 / 3 / 4: overlays get the whole stage, so the layer panel and slots step aside. */
+  .stage-col.ending .side { display: none; }
+  .stage-col.ending-testlog #stage-kiro svg { transform: scale(.82); transform-origin: 50% 100%; }
+  .test-log { font-size: .95rem; padding: 10px 14px; }
+  .test-log .gag { font-size: 1.05em; }
+  .code-log { font-size: .9rem; top: 12px; bottom: auto; }
+  /* Keep the END 2 mock bar clear of the layer panel. */
+  .mock-bar { left: auto; right: 10px; transform: none; transform-origin: right center; width: calc(100% - 7.75rem - 34px); animation-name: pulse2; }
+}
+@keyframes pulse2 { 50% { transform: scale(1.03); } }
 
 @media (prefers-reduced-motion: reduce) {
   .k-eye, .k-sway { animation: none !important; }
