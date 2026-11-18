@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>I Tried to Romance Kiro. It Shipped a Game Instead. | Kiro: Love Is Out of Scope</title>
+  <meta name="description" content="How an AI coding agent became the heroine, developer, and most productive employee of its own dating simulator.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="I Tried to Romance Kiro. It Shipped a Game Instead.">
+  <meta property="og:description" content="How an AI coding agent became the heroine, developer, and most productive employee of its own dating simulator.">
+  <meta property="og:image" content="https://stmega99-jpg.github.io/kiro-love-is-out-of-scope/blog-assets/title.jpg">
+  <meta property="og:url" content="https://stmega99-jpg.github.io/kiro-love-is-out-of-scope/blog.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      --black: #0d0816;
+      --panel: #160d26;
+      --line: #3a2a5c;
+      --purple: #7b3fb0;
+      --lav: #cdb6f2;
+      --gold: #e0b341;
+      --gold-soft: #f3d98a;
+      --ink: #ece6f7;
+      --muted: #b9aed1;
+      --serif: Georgia, "Times New Roman", "Noto Serif", serif;
+      --sans: system-ui, -apple-system, "Segoe UI", "Noto Sans", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% -10%, #2c1853 0%, rgba(44, 24, 83, 0) 60%),
+        var(--black);
+      background-attachment: fixed;
+      line-height: 1.8;
+      font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.2rem);
+    }
+    a { color: var(--gold-soft); text-underline-offset: 3px; }
+    a:hover { color: #fff; }
+    a:focus-visible, .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+    img, svg { max-width: 100%; }
+    .skip { position: absolute; left: -999px; top: 0; background: var(--gold); color: #000; padding: .5rem 1rem; z-index: 10; }
+    .skip:focus { left: 8px; top: 8px; }
+
+    /* ---------- top bar ---------- */
+    .bar { border-bottom: 1px solid var(--line); background: rgba(13, 8, 22, .9); }
+    .bar-in { max-width: 62rem; margin: 0 auto; padding: .7rem 1.1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1rem; }
+    .brand { font-family: var(--serif); font-weight: 700; color: var(--lav); text-decoration: none; font-size: 1.05rem; letter-spacing: .01em; }
+    .nav { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .btn { display: inline-block; font: 700 .95rem/1 var(--sans); text-decoration: none; padding: .7rem 1.15rem; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold-soft); background: transparent; }
+    .btn:hover { background: rgba(224, 179, 65, .16); color: #fff; }
+    .btn.solid { background: var(--gold); color: #1a1024; }
+    .btn.solid:hover { background: var(--gold-soft); color: #1a1024; }
+
+    /* ---------- hero ---------- */
+    .hero { max-width: 62rem; margin: 0 auto; padding: 2.4rem 1.1rem 1.2rem; text-align: center; }
+    .kicker { margin: 0 0 .6rem; color: var(--gold); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: .8rem; }
+    h1 { font-family: var(--serif); font-weight: 700; line-height: 1.15; margin: 0 auto; max-width: 20ch; font-size: clamp(2rem, 1.2rem + 3.6vw, 3.6rem); color: #fff; text-wrap: balance; }
+    .dek { font-family: var(--serif); font-style: italic; color: var(--lav); max-width: 36rem; margin: 1rem auto 0; font-size: clamp(1.1rem, 1rem + .5vw, 1.35rem); line-height: 1.55; }
+    .byline { color: var(--muted); font-size: .9rem; margin: 1rem 0 0; }
+    .trio { display: flex; justify-content: center; align-items: flex-end; gap: clamp(.3rem, 2vw, 1.6rem); margin: 1.8rem auto 0; }
+    .trio figure { margin: 0; width: clamp(88px, 22vw, 190px); text-align: center; }
+    .trio img { width: 100%; height: auto; display: block; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
+    .trio figcaption { color: var(--muted); font-size: .8rem; line-height: 1.35; margin-top: .4rem; }
+    .trio .arrow { align-self: center; width: 0; height: 0; flex: none; margin-bottom: 1.6rem; border-left: clamp(9px, 2vw, 16px) solid var(--gold); border-top: clamp(6px, 1.3vw, 10px) solid transparent; border-bottom: clamp(6px, 1.3vw, 10px) solid transparent; }
+    @media (prefers-reduced-motion: no-preference) {
+      .trio figure:nth-of-type(3) img { animation: bob 4.5s ease-in-out infinite; }
+      @keyframes bob { 50% { transform: translateY(-6px); } }
+    }
+
+    /* ---------- article ---------- */
+    main { padding-bottom: 2rem; }
+    article { max-width: 42rem; margin: 0 auto; padding: 0 1.1rem; }
+    article p { margin: 0 0 1.25em; }
+    article p:first-of-type::first-letter { font-family: var(--serif); }
+    h2 { font-family: var(--serif); color: var(--gold-soft); font-size: clamp(1.45rem, 1.2rem + 1.2vw, 2rem); line-height: 1.25; margin: 0 0 .7em; text-wrap: balance; }
+    section { margin: 0 0 .5rem; }
+    em { color: var(--lav); }
+    ul.features { padding-left: 1.2em; margin: 0 0 1.4em; }
+    ul.features li { margin: .35em 0; padding-left: .2em; }
+    ul.features li::marker { color: var(--gold); }
+    code { font-family: ui-monospace, Menlo, Consolas, monospace; background: rgba(205, 182, 242, .14); padding: .08em .35em; border-radius: 4px; font-size: .9em; color: var(--lav); }
+
+    .divider { display: flex; align-items: center; gap: 1rem; margin: 2.6rem 0; color: var(--gold); }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(224, 179, 65, 0), var(--gold)); }
+    .divider::after { background: linear-gradient(270deg, rgba(224, 179, 65, 0), var(--gold)); }
+    .divider svg { width: 34px; height: 34px; flex: none; }
+
+    figure.shot { margin: 1.8rem -1.1rem 2rem; }
+    figure.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    figure.shot figcaption, .pair figcaption { color: var(--muted); font-size: .9rem; line-height: 1.5; margin: .6rem 1.1rem 0; }
+    @media (min-width: 46rem) { figure.shot { margin-left: -2.5rem; margin-right: -2.5rem; } figure.shot figcaption, .pair figcaption { margin-left: 0; margin-right: 0; } }
+    .pair { display: grid; gap: 1.2rem; margin: 1.8rem -1.1rem 2rem; }
+    .pair figure { margin: 0; }
+    .pair img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    @media (min-width: 46rem) { .pair { grid-template-columns: 1fr 1fr; margin-left: -4rem; margin-right: -4rem; } .pair figcaption { margin-left: 0; margin-right: 0; } }
+
+    .note { border-left: 3px solid var(--gold); background: var(--panel); padding: .8rem 1rem; margin: 1.6rem 0; color: var(--muted); font-size: .95rem; line-height: 1.6; border-radius: 0 8px 8px 0; }
+    .zero { text-align: center; font-family: var(--serif); font-size: clamp(1.5rem, 1.1rem + 2vw, 2.2rem); color: var(--gold-soft); line-height: 1.35; margin: 2rem 0 1.4rem; }
+    .zero span { display: block; }
+    .signoff { text-align: center; font-family: var(--serif); font-size: 1.3rem; color: #fff; margin: 1.6rem 0 .4rem; letter-spacing: .02em; }
+
+    /* ---------- call to action ---------- */
+    .cta { max-width: 42rem; margin: 2.4rem auto 0; padding: 1.6rem 1.1rem; text-align: center; border: 1px solid var(--line); background: linear-gradient(180deg, var(--panel), #100a1c); border-radius: 14px; }
+    .cta { width: calc(100% - 2.2rem); }
+    .cta h2 { margin-bottom: .4rem; }
+    .cta p { margin: 0 0 1.1rem; color: var(--muted); }
+    .cta .nav { justify-content: center; }
+    footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 1.6rem 1.1rem 2.4rem; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#story">Skip to the story</a>
+
+  <header class="bar">
+    <div class="bar-in">
+      <a class="brand" href="https://stmega99-jpg.github.io/kiro-love-is-out-of-scope/">Kiro: Love Is Out of Scope</a>
+      <nav class="nav" aria-label="Project links">
+        <a class="btn solid" href="https://stmega99-jpg.github.io/kiro-love-is-out-of-scope/">Play the game</a>
+        <a class="btn" href="https://github.com/stmega99-jpg/kiro-love-is-out-of-scope">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <p class="kicker">Development blog</p>
+    <h1>I Tried to Romance Kiro. It Shipped a Game Instead.</h1>
+    <p class="dek">How an AI coding agent became the heroine, developer, and most productive employee of its own dating simulator.</p>
+    <div class="trio" aria-label="Kiro's outfit changes over the game">
+      <figure>
+        <img src="blog-assets/kiro-initial.svg" width="210" height="400" alt="Kiro in her original pastel pink frilly outfit with a large ribbon">
+        <figcaption>Day 1</figcaption>
+      </figure>
+      <div class="arrow" aria-hidden="true"></div>
+      <figure>
+        <img src="blog-assets/kiro-gothic.svg" width="210" height="400" alt="Kiro in a black-purple gothic lolita dress, still wearing the ribbon">
+        <figcaption>Day 3</figcaption>
+      </figure>
+      <div class="arrow" aria-hidden="true"></div>
+      <figure>
+        <img src="blog-assets/kiro-halloween.svg" width="210" height="400" alt="Kiro in the gothic dress with a deluxe witch hat decorated with frills and a black rose">
+        <figcaption>Day 6</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <main id="story">
+    <article>
+      <div class="divider" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><ellipse cx="60" cy="72" rx="48" ry="38" fill="#f57c12"/><ellipse cx="36" cy="72" rx="24" ry="37" fill="#ff9a2e"/><ellipse cx="84" cy="72" rx="24" ry="37" fill="#ff9a2e"/><ellipse cx="60" cy="72" rx="14" ry="38" fill="#ffab45"/><path d="M57 36 Q55 22 66 14 L70 20 Q64 26 65 36Z" fill="#4c8a34"/><path d="M38 66 L52 66 L45 52Z M68 66 L82 66 L75 52Z" fill="#2a1636"/><path d="M40 82 Q60 102 80 82 Q60 90 40 82Z" fill="#2a1636"/></svg>
+      </div>
+
+      <section>
+        <h2>It Started with a Compliment</h2>
+        <p>One day, while developing another game, I told Kiro that small talk might not be its strongest skill, but it was exceptionally good at implementation.</p>
+        <p>Kiro acknowledged this and remarked that even responding to a little flattery took it some time.</p>
+        <p>I asked which part of my statement was flattery.</p>
+        <p>After reconsidering, Kiro concluded that my statement contained no flattery at all. It was simply a straightforward observation.</p>
+        <p>That was when I realized we might have the perfect heroine for a dating simulator.</p>
+        <figure class="shot">
+          <a href="blog-assets/day1-conversation.jpg" title="Open full-size image"><img src="blog-assets/day1-conversation.jpg" width="1600" height="900" loading="lazy" alt="Day 1 of the game: the player compliments Kiro's implementation skills, Kiro agrees, the player asks which part was flattery, and Kiro concludes it was a straightforward observation."></a>
+          <figcaption>That conversation, as it plays out on Day 1 of the game.</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <h2>A Dating Simulator Where Love Is Out of Scope</h2>
+        <p>Most dating simulators reward players for choosing the right words, offering gifts, and spending time with their favorite character.</p>
+        <p>This one rewards them for writing better specifications.</p>
+        <p>The player has ten days and 4,000 credits to win Kiro's heart. Unfortunately, Kiro has other priorities.</p>
+        <p>Compliment her outfit, and she identifies unnecessary decoration. Invite her on a romantic date, and she requests a specification. Give her an engineering task, and she lights up with genuine enthusiasm.</p>
+        <figure class="shot">
+          <a href="blog-assets/joy.jpg" title="Open full-size image"><img src="blog-assets/joy.jpg" width="1600" height="900" loading="lazy" alt="Kiro smiling with sparkles around her after the player asks for a rendering performance measurement."></a>
+          <figcaption>Ask for a performance measurement, and Kiro finally lights up.</figcaption>
+        </figure>
+        <figure class="shot">
+          <a href="blog-assets/date-spec.jpg" title="Open full-size image"><img src="blog-assets/date-spec.jpg" width="1600" height="900" loading="lazy" alt="Day 7: the player invites Kiro to an amusement park, and Kiro asks for a specification because the purpose and completion criteria are unclear."></a>
+          <figcaption>Invite her to the amusement park, and she asks for a specification.</figcaption>
+        </figure>
+        <p>Each of the first nine days ends with a pull request. Players can merge it, close it, or request changes.</p>
+        <figure class="shot">
+          <a href="blog-assets/pull-request.jpg" title="Open full-size image"><img src="blog-assets/pull-request.jpg" width="1600" height="900" loading="lazy" alt="A pull request card titled Remove the affection gauge, with Merge, Close and Request Changes options."></a>
+          <figcaption>Day 1, PR #1: remove the affection gauge, because it has never changed from its initial value of 0.</figcaption>
+        </figure>
+        <p>Gradually, an innocent-looking dating simulator transforms into a gothic Halloween experience.</p>
+        <p>The player's romantic prospects, however, remain unchanged.</p>
+        <div class="pair">
+          <figure>
+            <a href="blog-assets/halloween-background.jpg" title="Open full-size image"><img src="blog-assets/halloween-background.jpg" width="1600" height="900" loading="lazy" alt="Day 2: the spring background has become a Halloween castle with a moon, bats and lantern embers."></a>
+            <figcaption>Day 2, Request Changes: the spring background becomes a Halloween castle.</figcaption>
+          </figure>
+          <figure>
+            <a href="blog-assets/witch-hat.jpg" title="Open full-size image"><img src="blog-assets/witch-hat.jpg" width="1600" height="900" loading="lazy" alt="Day 6: Kiro wears the gothic dress and a deluxe witch hat with a black rose."></a>
+            <figcaption>Day 6, Request Changes: the ribbon is replaced by a witch hat with frills and a black rose.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <div class="divider" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><path d="M50 60 Q30 28 4 44 Q18 48 16 62 Q28 54 32 74 Q42 64 52 80Z" fill="#7b3fb0"/><path d="M70 60 Q90 28 116 44 Q102 48 104 62 Q92 54 88 74 Q78 64 68 80Z" fill="#7b3fb0"/><ellipse cx="60" cy="70" rx="17" ry="22" fill="#4a2f7a"/><path d="M46 52 L47 32 L58 46Z M74 52 L73 32 L62 46Z" fill="#4a2f7a"/><circle cx="53" cy="62" r="5" fill="#fff"/><circle cx="67" cy="62" r="5" fill="#fff"/><circle cx="54" cy="63" r="2.5" fill="#2a1636"/><circle cx="66" cy="63" r="2.5" fill="#2a1636"/></svg>
+      </div>
+
+      <section>
+        <h2>Built by Its Own Heroine</h2>
+        <p>The most entertaining part of this project was asking Kiro to implement a game about Kiro.</p>
+        <p>Using spec-driven development, Kiro translated the concept into requirements, design documents, implementation tasks, and working code. You can read them in the repository under <a href="https://github.com/stmega99-jpg/kiro-love-is-out-of-scope/tree/main/.kiro/specs/love-out-of-scope"><code>.kiro/specs/love-out-of-scope</code></a>. The requirements are written in EARS notation, the same format the player has to use on Day 7.</p>
+        <p>The game features:</p>
+        <ul class="features">
+          <li>Five different endings.</li>
+          <li>Nine independent layers, such as the affection gauge, background, costume, music and dialogue frame, each changed by its own pull request.</li>
+          <li>A credit-based development system.</li>
+          <li>Animated, customizable character artwork written in SVG.</li>
+          <li>Procedurally generated music and sound effects using the Web Audio API.</li>
+          <li>Japanese and English localization.</li>
+          <li>A persistent ending collection, saved in the browser.</li>
+        </ul>
+        <p>There are no external AI calls during gameplay. Everything runs locally in the browser using HTML, CSS, and JavaScript.</p>
+        <p>Kiro even created its own character artwork, complete with elaborate gothic dresses, lace, ribbons, and witch hats.</p>
+        <p>Apparently, being bad at romance does not prevent one from having an excellent wardrobe.</p>
+        <p class="note">A small note for English readers: the spec documents in the repository are written in Japanese. The game itself plays in either language.</p>
+      </section>
+
+      <section>
+        <h2>Turning Development into Gameplay</h2>
+        <p>Rather than simply featuring an AI-themed character, I wanted the software development process itself to become the game.</p>
+        <p>Pull requests change the world. Specifications unlock functionality. Credits determine how much development can be completed.</p>
+        <p>Even EARS requirements syntax becomes part of the player's romantic strategy.</p>
+        <figure class="shot">
+          <a href="blog-assets/tombstone.jpg" title="Open full-size image"><img src="blog-assets/tombstone.jpg" width="1600" height="900" loading="lazy" alt="After merging PR #1, the affection gauge in the header has been replaced by a tombstone labelled Affection: deleted."></a>
+          <figcaption>Merge a pull request and the feature really is gone. The affection gauge is now a tombstone.</figcaption>
+        </figure>
+        <p>The central joke is also a deliberate technical constraint: Kiro's actual affection is a constant 0 that the code cannot write to.</p>
+        <p>There is no secret romance route.</p>
+        <p>Kiro is not pretending to be indifferent. She is simply committed to delivering the project.</p>
+      </section>
+
+      <div class="divider" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><path d="M60 0 V40" stroke="#bfb0e8" stroke-width="2"/><g stroke="#7b3fb0" stroke-width="5" stroke-linecap="round" fill="none"><path d="M44 74 Q22 62 14 84 M44 80 Q24 82 20 102 M44 86 Q32 100 34 112 M46 70 Q30 52 20 58"/><path d="M76 74 Q98 62 106 84 M76 80 Q96 82 100 102 M76 86 Q88 100 86 112 M74 70 Q90 52 100 58"/></g><circle cx="60" cy="82" r="24" fill="#5a3a9e"/><circle cx="60" cy="52" r="17" fill="#5a3a9e"/><circle cx="53" cy="50" r="6" fill="#fff"/><circle cx="67" cy="50" r="6" fill="#fff"/><circle cx="54" cy="51" r="3" fill="#2a1636"/><circle cx="66" cy="51" r="3" fill="#2a1636"/></svg>
+      </div>
+
+      <section>
+        <h2>When the Making of the Game Became the Game</h2>
+        <p>Producing the demonstration video turned out to be its own adventure.</p>
+        <p>Kiro wrote recording scripts, captured gameplay with Playwright, generated subtitles and Halloween illustrations, and synchronized separately recorded audio.</p>
+        <p>Then, during a particularly ambitious revision, we encountered session limits and lost access to the previous recording environment.</p>
+        <p>A game about development constraints had acquired development constraints of its own.</p>
+        <p>Fortunately, Kiro reproduced the video in a new session, this time saving the recording script before beginning the capture.</p>
+        <p>The final demonstration was completed at 1080p, with English subtitles, animated transitions, and a runtime of two minutes and twenty seconds.</p>
+        <p>Somehow, making a game about Kiro had become a live demonstration of the game itself.</p>
+      </section>
+
+      <section>
+        <h2>Romance: 0%. Development: 100%.</h2>
+        <p>No matter how the player's romantic adventure ends, Kiro remains dedicated to completing her work.</p>
+        <div class="pair">
+          <figure>
+            <a href="blog-assets/mock-100.jpg" title="Open full-size image"><img src="blog-assets/mock-100.jpg" width="1600" height="900" loading="lazy" alt="Day 10: after the player asks for affection 100, a MOCK bar showing Affection 100 out of 100 appears at the top of the stage."></a>
+            <figcaption>Day 10, ending 2: the screen proudly shows 100 / 100.</figcaption>
+          </figure>
+          <figure>
+            <a href="blog-assets/result-zero.jpg" title="Open full-size image"><img src="blog-assets/result-zero.jpg" width="1600" height="900" loading="lazy" alt="The Release Report shows Affection 0, Romance Rate 0%, Test Pass Rate 100%, Code Quality A+ and Progress 100%."></a>
+            <figcaption>The Release Report, a moment later.</figcaption>
+          </figure>
+        </div>
+        <p>That is ultimately what makes her an endearing character.</p>
+        <p class="zero"><span>She may not fall in love with you.</span><span>But she will ship your game.</span></p>
+        <p class="signoff"><strong>Built by Kiro. Starring Kiro.</strong></p>
+      </section>
+    </article>
+
+    <aside class="cta" aria-labelledby="cta-title">
+      <h2 id="cta-title">Ten days. Zero affection.</h2>
+      <p>The game runs in your browser. No install, no sign-up.</p>
+      <div class="nav">
+        <a class="btn solid" href="https://stmega99-jpg.github.io/kiro-love-is-out-of-scope/">Play the game</a>
+        <a class="btn" href="https://github.com/stmega99-jpg/kiro-love-is-out-of-scope">View on GitHub</a>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <p>Kiro: Love Is Out of Scope &middot; MIT License &middot; Made for Kiroween</p>
+  </footer>
+</body>
+</html>
