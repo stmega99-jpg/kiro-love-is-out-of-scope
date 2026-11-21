@@ -1,65 +1,65 @@
 # Tasks: Kiro: Love Is Out of Scope
 
-- [x] 1. プロジェクト基盤
-  - [x] 1.1 `.kiro/steering/project-rules.md` を作成する
-  - [x] 1.2 `requirements.md` / `design.md` / `tasks.md` を作成する
-  - [x] 1.3 `README.md` を更新する（MIT、遊び方）
-- [x] 2. データ定義 (`js/data.js`)
-  - [x] 2.1 Day 1〜9 の A/B/C 返答 27 件（EN/JA）
-  - [x] 2.2 Day 1 A の主人公ツッコミ「どこにお世辞があったの？」を挿入する
-  - [x] 2.3 Day 10 の最終選択 3 件
-  - [x] 2.4 PR #1〜#9 の内容、各選択肢の効果、確認セリフ（EN/JA）
-  - [x] 2.5 END 1〜5 の台詞、Release Report 文言、UI文言
-- [x] 3. ゲームロジック (`js/state.js`)
-  - [x] 3.1 `actualAffection` を書き込み不可の定数 `0` にする
-  - [x] 3.2 `spend()` で Day 1〜10 すべての残高を `0.00` にクランプする
-  - [x] 3.3 会話・PR・最終選択の費用と所要時間を計算する
-  - [x] 3.4 `isExhausted()`（Day 1〜9 かつ `credits <= 0.50`）
-  - [x] 3.5 PR 解決（1日1レイヤー）、PR #9 Merge で END 3
-  - [x] 3.6 EARS 検証
-  - [x] 3.7 履歴の保存・読込・消去（`localStorage`、失敗時は無視）
-- [x] 4. 描画 (`js/render.js`)
-  - [x] 4.1 立ち絵（衣装3種 × 帽子3種 × 表情）とフリル数 15 / 2 / 24
-  - [x] 4.2 背景3種（春・暗黒・ハロウィン城）と END 用シーン（遊園地、墓場）
-  - [x] 4.3 墓標、HUDの好感度バー3種、大釜、デートスロット
-  - [x] 4.4 ミニステージ（アルバム用）
-- [x] 5. 音声 (`js/audio.js`)
-  - [x] 5.1 BGM 3種（オルゴール / パルス / ゴシック室内楽）
-  - [x] 5.2 SFX とミュート
+- [x] 1. Project foundation
+  - [x] 1.1 Create `.kiro/steering/project-rules.md`
+  - [x] 1.2 Create `requirements.md` / `design.md` / `tasks.md`
+  - [x] 1.3 Update `README.md` (MIT, how to play)
+- [x] 2. Data definitions (`js/data.js`)
+  - [x] 2.1 27 replies for the A/B/C choices on Days 1-9 (EN/JA)
+  - [x] 2.2 Insert the protagonist's retort "Wait... which part of that was flattery?" in Day 1 A
+  - [x] 2.3 Three final choices for Day 10
+  - [x] 2.4 Content of PR #1-#9, the effect of each choice, and the confirmation lines (EN/JA)
+  - [x] 2.5 Lines for END 1-5, Release Report text, and UI text
+- [x] 3. Game logic (`js/state.js`)
+  - [x] 3.1 Make `actualAffection` a non-writable constant `0`
+  - [x] 3.2 Clamp the balance to `0.00` in `spend()` on every day, Day 1-10
+  - [x] 3.3 Calculate the cost and elapsed time of conversations, PRs, and the final choice
+  - [x] 3.4 `isExhausted()` (Days 1-9 and `credits <= 0.50`)
+  - [x] 3.5 PR resolution (one layer per day), and END 3 on PR #9 Merge
+  - [x] 3.6 EARS validation
+  - [x] 3.7 Save, load, and clear history (`localStorage`, ignore failures)
+- [x] 4. Rendering (`js/render.js`)
+  - [x] 4.1 Sprite (3 outfits x 3 hats x expressions) and frill counts 15 / 2 / 24
+  - [x] 4.2 Three backgrounds (spring, dark, Halloween castle) and END scenes (amusement park, graveyard)
+  - [x] 4.3 Tombstone, three HUD affection bars, cauldron, date slot
+  - [x] 4.4 Mini stage (for the album)
+- [x] 5. Audio (`js/audio.js`)
+  - [x] 5.1 Three BGM tracks (music box / pulse / gothic chamber music)
+  - [x] 5.2 SFX and mute
 - [x] 6. UI (`js/ui.js`, `css/style.css`, `index.html`)
-  - [x] 6.1 タイトル、HUD、ステージ、ログ、アクション領域
-  - [x] 6.2 会話フロー、返答の複数行表示、使用量表示
-  - [x] 6.3 PR カードと Day 7 の EARS 入力
-  - [x] 6.4 Day 8 の退室と自動通知
-  - [x] 6.5 Day 10 の最終選択
-  - [x] 6.6 END 1〜5 の演出（END 2 のモックバー、END 5 の0.1秒消滅）
-  - [x] 6.7 Release Report と総評
-  - [x] 6.8 Release History（保存、一覧、全消去）。END 5 は消滅前に保存する
-  - [x] 6.9 EN/JA トグル、会話枠3種、`playerInput` の `rc` ショートカット
-- [x] 7. 検証
-  - [x] 7.1 ロジックのスクリプト検証（クランプ、枯渇優先順位、END 到達、レイヤー独立性）
-  - [x] 7.2 ブラウザで全 END と言語切替を通し確認する
-- [x] 8. 公開
-  - [x] 8.1 ブランチを push して PR を作成する（PR #1）
-- [x] 9. タイプライター表示（動画映え向上 PR B）
-  - [x] 9.1 新規行のみ1文字ずつ表示、句読点で間を置く
-  - [x] 9.2 Next / Enter / ログのクリックで即時表示（進行しない）
-  - [x] 9.3 自動遷移の待ち時間を、表示完了後から数える
-  - [x] 9.4 `prefers-reduced-motion` では無効
-- [x] 10. 笑いどころの演出（動画映え向上 PR C）
-  - [x] 10.1 Merge の墓標落下（HUD、スロット、背景）と着地の演出
-  - [x] 10.2 C を選んだ時の跳ね、光、星、速いタイプ
-  - [x] 10.3 A/B の作業モーション（伏し目、手のタップ、コード画面）
-  - [x] 10.4 演出を Kiro の返答の表示開始に連動させる
-  - [x] 10.5 `prefers-reduced-motion` で停止
-- [x] 11. エンディング演出とクレジット（動画映え向上 PR D）
-  - [x] 11.1 END 4 の輝きと END 2 のモックバーを Kiro の返答の表示開始に連動させる
-  - [x] 11.2 クレジットのカウントダウン（実残高を下回らず、`0.00` クランプを維持）
-  - [x] 11.3 Release Report の順次表示と END 2 の好感度スタンプ
-  - [x] 11.4 ワイド画面での結果画面の2列レイアウト
-  - [x] 11.5 `prefers-reduced-motion` で即時表示
-- [x] 12. タイトルの冒頭演出と仕上げ（動画映え向上 PR E）
-  - [x] 12.1 結果のスタンプを初回表示のみに限定する
-  - [x] 12.2 END 1 / 3 / 4 の演出を、行の表示開始に連動させる
-  - [x] 12.3 タイトルの導入演出とワイドレイアウト
-  - [x] 12.4 髪の質感
+  - [x] 6.1 Title, HUD, stage, log, action area
+  - [x] 6.2 Conversation flow, multi-line replies, usage display
+  - [x] 6.3 PR card and the Day 7 EARS input
+  - [x] 6.4 Day 8 exit and automatic notification
+  - [x] 6.5 Day 10 final choice
+  - [x] 6.6 END 1-5 effects (END 2 mock bar, END 5 0.1-second vanish)
+  - [x] 6.7 Release Report and closing remark
+  - [x] 6.8 Release History (save, list, clear all). END 5 saves before the vanish
+  - [x] 6.9 EN/JA toggle, three conversation frames, the `rc` shortcut for `playerInput`
+- [x] 7. Verification
+  - [x] 7.1 Script verification of the logic (clamping, exhaustion priority, reaching each END, layer independence)
+  - [x] 7.2 Play through every END and the language switch in a browser
+- [x] 8. Publishing
+  - [x] 8.1 Push the branch and create a PR (PR #1)
+- [x] 9. Typewriter display (demo-video polish, PR B)
+  - [x] 9.1 Show only new lines, one character at a time, pausing at punctuation
+  - [x] 9.2 Show instantly on Next / Enter / log click (without advancing)
+  - [x] 9.3 Count the wait time for automatic transitions from after the display finishes
+  - [x] 9.4 Disabled under `prefers-reduced-motion`
+- [x] 10. Comedic effects (demo-video polish, PR C)
+  - [x] 10.1 Tombstone drop on Merge (HUD, slot, background) and the landing effect
+  - [x] 10.2 Bounce, glow, and stars when C is chosen, with faster typing
+  - [x] 10.3 Working motion for A/B (eyes down, hand tapping, code screen)
+  - [x] 10.4 Tie the effects to the start of the display of Kiro's reply
+  - [x] 10.5 Stop under `prefers-reduced-motion`
+- [x] 11. Ending effects and credits (demo-video polish, PR D)
+  - [x] 11.1 Tie the END 4 shine and the END 2 mock bar to the start of the display of Kiro's reply
+  - [x] 11.2 Credit countdown (never below the actual balance, keeping the `0.00` clamp)
+  - [x] 11.3 Sequential Release Report display and the END 2 affection stamp
+  - [x] 11.4 Two-column result screen layout on wide screens
+  - [x] 11.5 Instant display under `prefers-reduced-motion`
+- [x] 12. Title intro and finishing touches (demo-video polish, PR E)
+  - [x] 12.1 Limit the result stamp to the first display
+  - [x] 12.2 Tie the END 1 / 3 / 4 effects to the start of the line display
+  - [x] 12.3 Title intro effect and wide layout
+  - [x] 12.4 Hair texture

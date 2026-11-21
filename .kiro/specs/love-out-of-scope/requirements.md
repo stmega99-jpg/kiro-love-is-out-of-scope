@@ -1,159 +1,159 @@
 # Requirements: Kiro: Love Is Out of Scope
 
-EARS記法で記述する。`THE SYSTEM` はゲーム本体を指す。
+Written in EARS notation. `THE SYSTEM` refers to the game itself.
 
-## R1. 技術制約
+## R1. Technical Constraints
 
-1. THE SYSTEM SHALL 外部API・外部画像・外部音源ファイルを使用しない。
-2. THE SYSTEM SHALL HTML/CSS/JS、インラインSVG/Canvas、Web Audio API のプロシージャル合成のみで動作する。
-3. WHEN `index.html` が `file://` で開かれた時 THE SYSTEM SHALL ビルド工程なしで起動する。
+1. THE SYSTEM SHALL NOT use external APIs, external images, or external audio files.
+2. THE SYSTEM SHALL run using only HTML/CSS/JS, inline SVG/Canvas, and procedural synthesis with the Web Audio API.
+3. WHEN `index.html` is opened over `file://` THE SYSTEM SHALL start without any build step.
 
-## R2. 日英バイリンガル
+## R2. Bilingual (EN/JA)
 
-1. THE SYSTEM SHALL 画面上部に EN / JA の言語トグルを常時表示する。
-2. WHEN プレイヤーが言語トグルを押した時 THE SYSTEM SHALL 進行状態を保持したまま、ログ・HUD・選択肢・PRカード・結果画面・アルバムを即時に再描画する。
-3. THE SYSTEM SHALL 選択した言語を `localStorage` の `klo.lang` に保存する。
-4. THE SYSTEM SHALL 英語テキストを丁寧でドライなエンジニア業務トーンで提供する。
+1. THE SYSTEM SHALL always show an EN / JA language toggle at the top of the screen.
+2. WHEN the player presses the language toggle THE SYSTEM SHALL immediately re-render the log, HUD, choices, PR card, result screen, and album while keeping the game progress.
+3. THE SYSTEM SHALL save the selected language in `localStorage` under `klo.lang`.
+4. THE SYSTEM SHALL provide the English text in a polite, dry, engineering work tone.
 
-## R3. ステータスとクレジット
+## R3. Status and Credits
 
-1. THE SYSTEM SHALL `DAY 01 / 10`、`Credits: 4,000.00`、`Affection: 0 / 100` を表示する。
-2. THE SYSTEM SHALL `actualAffection` を定数 `0` として保持し、変更できないようにする。隠し好感度は持たない。
-3. THE SYSTEM SHALL 毎日の会話選択肢（A / B / C）に `Est. ~0.20 - 0.45 Cr` を選択前に表示する。
-4. WHEN 会話選択肢が実行された時 THE SYSTEM SHALL Kiro の返答末尾に `Est. Credits Used: x.xx | Elapsed Time: Ns` を表示し、同額を残高から減算する。
-5. THE SYSTEM SHALL PR の `Request Changes` に `Est. ~650 - 900 Cr` を選択前に表示し、実行後に実績値を表示して減算する。
-6. WHILE 残高が `0` より大きい間 THE SYSTEM SHALL `Request Changes` ボタンを押下可能にする。
-7. WHEN 減算結果が `0.00` を下回る時 THE SYSTEM SHALL 残高を `0.00` にクランプする。この規則は Day 1〜9 と Day 10 の両方に適用し、マイナス残高は保持も表示もしない。
+1. THE SYSTEM SHALL display `DAY 01 / 10`, `Credits: 4,000.00`, and `Affection: 0 / 100`.
+2. THE SYSTEM SHALL hold `actualAffection` as the constant `0` and make it immutable. There is no hidden affection value.
+3. THE SYSTEM SHALL show `Est. ~0.20 - 0.45 Cr` on the daily conversation choices (A / B / C) before they are selected.
+4. WHEN a conversation choice is executed THE SYSTEM SHALL show `Est. Credits Used: x.xx | Elapsed Time: Ns` at the end of Kiro's reply and subtract the same amount from the balance.
+5. THE SYSTEM SHALL show `Est. ~650 - 900 Cr` on the PR `Request Changes` button before it is selected, and after execution show the actual amount and subtract it.
+6. WHILE the balance is greater than `0` THE SYSTEM SHALL keep the `Request Changes` button pressable.
+7. WHEN a subtraction would result in less than `0.00` THE SYSTEM SHALL clamp the balance to `0.00`. This rule applies to both Days 1-9 and Day 10, and a negative balance is never kept or displayed.
 
-## R4. クレジット枯渇判定
+## R4. Credit Exhaustion
 
-1. WHEN Day 1〜9 でアクション実行後の残高が `0.50` 以下になった時 THE SYSTEM SHALL そのアクションの完了報告を表示した直後に END 5 へ遷移する。
-2. WHEN Day 10 の最終選択が実行された時 THE SYSTEM SHALL 残高に関わらず、選択した END 1 / END 2 / END 4 を END 5 より優先して発火する。
+1. WHEN the balance is `0.50` or less after an action on Days 1-9 THE SYSTEM SHALL transition to END 5 immediately after displaying that action's completion report.
+2. WHEN the Day 10 final choice is executed THE SYSTEM SHALL fire the selected END 1 / END 2 / END 4 in preference to END 5, regardless of the balance.
 
-## R5. 独立レイヤー
+## R5. Independent Layers
 
-1. THE SYSTEM SHALL 9つのレイヤー（`affectionUI`, `bgTheme`, `costumeBody`, `bgmMode`, `itemSlot`, `costumeHead`, `dateModule`, `windowFrame`, `playerInput`）を1日1レイヤーで独立管理する。
-2. WHEN 日Nの PR が決定された時 THE SYSTEM SHALL 日Nに対応するレイヤーだけを更新し、他のレイヤーを変更しない。
-3. THE SYSTEM SHALL 各レイヤーを `initial`（Close）、`merge`、`rc`（Request Changes）のいずれかの状態で保持し、SVG / CSS / Web Audio で合成表示する。
-4. WHEN レイヤーが `merge` で削除系のUIだった時 THE SYSTEM SHALL そのUIを墓標🪦で表示する。
-5. THE SYSTEM SHALL レイヤー状態の一覧（インスペクタ）を常時表示する。
+1. THE SYSTEM SHALL manage nine layers (`affectionUI`, `bgTheme`, `costumeBody`, `bgmMode`, `itemSlot`, `costumeHead`, `dateModule`, `windowFrame`, `playerInput`) independently, one layer per day.
+2. WHEN the PR for day N is decided THE SYSTEM SHALL update only the layer that corresponds to day N and leave all other layers unchanged.
+3. THE SYSTEM SHALL hold each layer in one of the states `initial` (Close), `merge`, or `rc` (Request Changes), and compose the display with SVG / CSS / Web Audio.
+4. WHEN a layer is `merge` and the UI is a removal-type UI THE SYSTEM SHALL display that UI as a tombstone 🪦.
+5. THE SYSTEM SHALL always display a list of layer states (the inspector).
 
-### レイヤー別の表示仕様
+### Display Specification per Layer
 
-| 日 | レイヤー | Merge | Close | Request Changes |
+| Day | Layer | Merge | Close | Request Changes |
 | :-- | :-- | :-- | :-- | :-- |
-| 1 | `affectionUI` | 墓標 | ピンクのハートバー | 金色の仕様達成度バー |
-| 2 | `bgTheme` | ミニマル暗黒背景＋墓標（桜停止） | パステル春背景＋桜吹雪 | ハロウィン城背景＋コウモリ＆火の粉 |
-| 3 | `costumeBody` | 黒衣（フリル15→2、87%減） | パステルピンクのフリル服（15） | 黒紫ゴシック・ロリータ（フリル24） |
-| 4 | `bgmMode` | ミニマル電子パルス音 | 長調オルゴール | ハロウィン・ゴシック室内楽シンセ |
-| 5 | `itemSlot` | 墓標 | リボン付きプレゼント枠 | 魔女の調合大釜ウィジェット |
-| 6 | `costumeHead` | シンプル黒三角魔女帽 | パステル大リボン | フリル＆黒薔薇つき豪華魔女帽 |
-| 7 | `dateModule` | 墓標 | 未定義のデートボタン | EARS記法による遊園地デート実装済み |
-| 8 | `windowFrame` | 黒いコンソールログ枠 | パステル丸枠 | アンティーク魔導書枠 |
-| 9 | `playerInput` | 墓標（END 3へ直行） | 手動クリック | ショートカット付き高速発注UI |
+| 1 | `affectionUI` | Tombstone | Pink heart bar | Gold spec-completion bar |
+| 2 | `bgTheme` | Minimal dark background + tombstone (blossoms stop) | Pastel spring background + blossom storm | Halloween castle background + bats and embers |
+| 3 | `costumeBody` | Black outfit (frills 15 → 2, 87% fewer) | Pastel pink frilly outfit (15) | Black-purple gothic lolita (24 frills) |
+| 4 | `bgmMode` | Minimal electronic pulse | Major-key music box | Halloween gothic chamber synth |
+| 5 | `itemSlot` | Tombstone | Ribbon-wrapped present slot | Witch's brewing cauldron widget |
+| 6 | `costumeHead` | Plain black triangular witch hat | Large pastel ribbon | Luxurious witch hat with frills and black roses |
+| 7 | `dateModule` | Tombstone | Undefined date button | Amusement park date implemented via EARS notation |
+| 8 | `windowFrame` | Black console log frame | Pastel rounded frame | Antique grimoire frame |
+| 9 | `playerInput` | Tombstone (goes straight to END 3) | Manual clicking | Fast-ordering UI with shortcuts |
 
-## R6. PR の3択
+## R6. The Three PR Options
 
-1. THE SYSTEM SHALL 各日の会話後に PR を提示し、`Merge`（0 Cr）、`Close`（0 Cr）、`Request Changes`（有料）を選べるようにする。
-2. WHEN `Close` が選ばれた時 THE SYSTEM SHALL 現状を維持し、ペナルティを発生させない。
-3. WHEN PR が決定された時 THE SYSTEM SHALL 各PRの内容に合った Kiro の確認セリフ（1〜2文、業務トーン、選択肢C以外では喜ばない）を表示する。
-4. WHEN Day 8 で選択肢 A または B が選ばれた時 THE SYSTEM SHALL Kiro の立ち絵を退室させ、その後に PR #8 を自動通知として提示する。
-5. WHEN PR #7 で `Request Changes` が選ばれた時 THE SYSTEM SHALL EARS記法の発注文の入力を求める。
-6. IF 入力文が `WHEN … THE … SHALL …` 形式でない、または「デート／遊園地」を指していない時 THEN THE SYSTEM SHALL 課金せずに再入力を促す。
-7. WHEN 有効なEARS文が発注された時 THE SYSTEM SHALL `dateModule` を `rc` にし、発注文を保存して表示する。
+1. THE SYSTEM SHALL present a PR after each day's conversation and let the player choose `Merge` (0 Cr), `Close` (0 Cr), or `Request Changes` (paid).
+2. WHEN `Close` is chosen THE SYSTEM SHALL keep the current state and apply no penalty.
+3. WHEN a PR is decided THE SYSTEM SHALL display a Kiro confirmation line (1-2 sentences, work tone, not happy unless the choice was C) that fits the content of that PR.
+4. WHEN choice A or B is selected on Day 8 THE SYSTEM SHALL make Kiro's sprite leave, and then present PR #8 as an automatic notification.
+5. WHEN `Request Changes` is chosen on PR #7 THE SYSTEM SHALL ask for an order sentence in EARS notation.
+6. IF the input sentence is not in the `WHEN … THE … SHALL …` form, or does not refer to a date or amusement park, THEN THE SYSTEM SHALL ask for re-entry without charging.
+7. WHEN a valid EARS sentence is ordered THE SYSTEM SHALL set `dateModule` to `rc`, and save and display the order sentence.
 
-## R7. 会話イベント
+## R7. Conversation Events
 
-1. THE SYSTEM SHALL 毎日（Day 1〜9）に A（甘い好意・お世辞）/ B（恋愛イベントの提案）/ C（仕事の依頼）の3択を提示し、30通りの固有返答を持つ。
-2. WHEN 選択肢 C が選ばれた時 THE SYSTEM SHALL Kiro を喜んだ表情にし、`✨` つきの饒舌な返答にする。
-3. WHEN Day 1 で選択肢 A が選ばれた時 THE SYSTEM SHALL Kiro の最初の返答の後に、主人公のツッコミ「どこにお世辞があったの？」を挿入し、続けて Kiro の「確かに ――」の返答を表示する。
-4. WHEN Day 9 の PR #9 が `Merge` された時 THE SYSTEM SHALL 即座に END 3 へ遷移する。
+1. THE SYSTEM SHALL present a choice of A (sweet affection / flattery), B (a proposed romantic event), or C (a work request) every day (Days 1-9), and have 30 unique replies.
+2. WHEN choice C is selected THE SYSTEM SHALL give Kiro a happy expression and a talkative reply with `✨`.
+3. WHEN choice A is selected on Day 1 THE SYSTEM SHALL insert the protagonist's retort "Wait... which part of that was flattery?" after Kiro's first reply, followed by Kiro's "You're right. ..." reply.
+4. WHEN PR #9 is `Merge`d on Day 9 THE SYSTEM SHALL transition to END 3 immediately.
 
-## R8. Day 10 の最終選択
+## R8. Day 10 Final Choice
 
-| 選択肢 | 費用 | 条件 | 結果 |
+| Choice | Cost | Condition | Result |
 | :-- | :-- | :-- | :-- |
-| 1 | 0 Cr | `dateModule` が `rc` | END 1 |
-| 2 | Est. ~500 Cr | なし | END 2 |
-| 3 | 0 Cr | なし | END 4 |
+| 1 | 0 Cr | `dateModule` is `rc` | END 1 |
+| 2 | Est. ~500 Cr | None | END 2 |
+| 3 | 0 Cr | None | END 4 |
 
-1. IF `dateModule` が `rc` でない時 THEN THE SYSTEM SHALL 選択肢1を選択不可にし、理由を表示する。
-2. WHEN 選択肢2が選ばれた時 THE SYSTEM SHALL 残高が足りなくても実行し、残高を `0.00` でクランプする。
+1. IF `dateModule` is not `rc` THEN THE SYSTEM SHALL make choice 1 unselectable and display the reason.
+2. WHEN choice 2 is selected THE SYSTEM SHALL execute it even if the balance is insufficient, and clamp the balance at `0.00`.
 
-## R9. エンディング
+## R9. Endings
 
-1. THE SYSTEM SHALL 5種のエンディングを提供する。END 1 `Date Feature Implemented`、END 2 `UI Mocked to 100`、END 3 `0 errors, 0 humans`、END 4 `Permanent Contractor`、END 5 `Credits Exhausted`。
-2. WHEN END 2 に到達した時 THE SYSTEM SHALL `affectionUI` の状態に関わらず、画面上部にモック用好感度バーを強制オーバーレイ表示し、ラベルだけを `100 / 100` にする。
-3. WHEN END 5 に到達した時 THE SYSTEM SHALL Kiro の最終報告の後、約0.1秒で Kiro を消す。
-4. THE SYSTEM SHALL 各エンディングを仕様書どおりの台詞で表示する。
+1. THE SYSTEM SHALL provide five endings: END 1 `Date Feature Implemented`, END 2 `UI Mocked to 100`, END 3 `0 errors, 0 humans`, END 4 `Permanent Contractor`, END 5 `Credits Exhausted`.
+2. WHEN END 2 is reached THE SYSTEM SHALL force a mock affection bar overlay at the top of the screen, regardless of the state of `affectionUI`, with only its label reading `100 / 100`.
+3. WHEN END 5 is reached THE SYSTEM SHALL make Kiro disappear about 0.1 seconds after Kiro's final report.
+4. THE SYSTEM SHALL display each ending with the lines given in the specification.
 
-## R10. Release Report と Release History
+## R10. Release Report and Release History
 
-1. WHEN いずれかのエンディングに到達した時 THE SYSTEM SHALL 次のリザルトと Kiro の総評「お疲れ様でした。今回も良い開発ができましたね！」を表示する。
+1. WHEN any ending is reached THE SYSTEM SHALL display the following result and Kiro's closing remark, "Good work. It was another productive development cycle!"
 
-   | 項目 | 値 |
+   | Item | Value |
    | :-- | :-- |
-   | 好感度 (Actual Affection) | 内部変数 `actualAffection`（常に `0`） |
-   | 恋愛成就率 (Romance Rate) | 0% |
-   | テスト成功率 (Test Pass Rate) | 100% |
-   | コード品質 (Code Quality) | A+ |
-   | プロジェクト進捗 (Progress) | 100% |
+   | Affection (Actual Affection) | Internal variable `actualAffection` (always `0`) |
+   | Romance Rate | 0% |
+   | Test Pass Rate | 100% |
+   | Code Quality | A+ |
+   | Progress | 100% |
 
-2. WHEN エンディングに到達した時 THE SYSTEM SHALL その時点のレイヤー状態（衣装・帽子・背景など）と END を `localStorage` の `klo.history` に記録する。
-3. WHEN END 5 に到達した時 THE SYSTEM SHALL Kiro が消える演出の前に、消滅直前のレイヤー状態を `klo.history` に記録する。Kiro が画面から消えた後でも、アルバムでは立ち絵を表示できること。
-4. THE SYSTEM SHALL Release History（周回アルバム）を一覧表示し、全消去できるようにする。
-5. IF `localStorage` が利用できない時 THEN THE SYSTEM SHALL ゲーム進行を妨げず、保存をスキップする。
+2. WHEN an ending is reached THE SYSTEM SHALL record the layer state at that moment (outfit, hat, background, and so on) and the END in `localStorage` under `klo.history`.
+3. WHEN END 5 is reached THE SYSTEM SHALL record the layer state just before Kiro disappears, before the vanishing effect. The album must still be able to show the sprite after Kiro has vanished from the screen.
+4. THE SYSTEM SHALL list the Release History (playthrough album) and allow it to be cleared entirely.
+5. IF `localStorage` is unavailable THEN THE SYSTEM SHALL skip saving without disrupting game progress.
 
-## R11. Kiro のキャラクター
+## R11. Kiro's Character
 
-1. THE SYSTEM SHALL Kiro にIT用語ダジャレを言わせない。
-2. THE SYSTEM SHALL 選択肢C以外では、甘い言葉やデートの誘いを仕様確認・環境改善・スケジュール連絡として扱う。
+1. THE SYSTEM SHALL NOT make Kiro say IT-term puns.
+2. THE SYSTEM SHALL, except for choice C, treat sweet talk and date invitations as specification checks, environment improvements, or schedule notices.
 
-## R12. 音声
+## R12. Audio
 
-1. THE SYSTEM SHALL Web Audio API のオシレータとノイズのみで BGM と効果音を合成する。
-2. WHEN `bgmMode` レイヤーが変わった時 THE SYSTEM SHALL BGM をオルゴール / ミニマルパルス / ゴシック室内楽シンセのいずれかへ切り替える。
-3. THE SYSTEM SHALL ユーザー操作の後にだけ音声を開始し、ミュート切り替えを提供する。
+1. THE SYSTEM SHALL synthesize BGM and sound effects using only Web Audio API oscillators and noise.
+2. WHEN the `bgmMode` layer changes THE SYSTEM SHALL switch the BGM to one of the music box / minimal pulse / gothic chamber synth tracks.
+3. THE SYSTEM SHALL start audio only after a user interaction, and provide a mute toggle.
 
-## R13. タイプライター表示
+## R13. Typewriter Display
 
-1. WHEN 会話ログに新しい行（Kiro / 主人公 / 地の文）が追加された時 THE SYSTEM SHALL その本文を1文字ずつ順番に表示する。
-2. WHEN 言語切替やその他の再描画が行われた時 THE SYSTEM SHALL 既存の行を即時に全文表示し、タイプを再生しない。
-3. WHILE 本文を表示している間 THE SYSTEM SHALL 使用量の行（`Est. Credits Used`）を隠し、本文の表示後に表示する。
-4. WHEN 表示中に Next（または Enter）またはログがクリックされた時 THE SYSTEM SHALL 進行せずに、その時点で未表示の本文を即時に全文表示する。
-5. WHEN 全文が表示された後に Next が押された時 THE SYSTEM SHALL 次へ進む。
-6. THE SYSTEM SHALL END 5 への遷移、END 3 への遷移、END 5 の消滅演出、結果画面への遷移の待ち時間を、本文の表示が終わった後から数える。
-7. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL タイプせず、全文を即時に表示する。
+1. WHEN a new line (Kiro / protagonist / narration) is added to the conversation log THE SYSTEM SHALL display its text one character at a time, in order.
+2. WHEN a language switch or other re-render occurs THE SYSTEM SHALL immediately show the full text of existing lines and not replay the typing.
+3. WHILE the text is being displayed THE SYSTEM SHALL hide the usage line (`Est. Credits Used`) and show it after the text is displayed.
+4. WHEN Next (or Enter) or the log is clicked during display THE SYSTEM SHALL immediately show the full text that is not yet displayed, without advancing.
+5. WHEN Next is pressed after the full text is displayed THE SYSTEM SHALL advance.
+6. THE SYSTEM SHALL count the wait time for the transition to END 5, the transition to END 3, the END 5 vanishing effect, and the transition to the result screen from after the text display has finished.
+7. WHERE `prefers-reduced-motion: reduce` is enabled THE SYSTEM SHALL show the full text immediately, without typing.
 
-## R14. 笑いどころの演出
+## R14. Comedic Effects
 
-1. WHEN `Merge` により UI が墓標に置き換わる時（好感度バー、プレゼント枠、デート、暗黒背景） THE SYSTEM SHALL 墓標を上から落下させ、着地時に砂ぼこり、画面の小さな揺れ、効果音を出す。
-2. THE SYSTEM SHALL 墓標の落下を、そのマージの描画で1回だけ再生し、言語切替などの再描画では再生しない。
-3. WHEN 選択肢 C に対する Kiro の返答が表示され始めた時 THE SYSTEM SHALL Kiro を跳ねさせ、背後に光、周囲に星を出す。主人公の行を打っている間は出さない。
-4. WHILE Kiro の C の返答を表示している間 THE SYSTEM SHALL 通常より速く文字を表示する。
-5. WHEN 選択肢 A または B に対する Kiro の返答が表示され始めた時 THE SYSTEM SHALL Kiro を伏し目にして手を小刻みに動かし、コードが流れる画面を横に表示する。表情は変えない。
-6. WHEN PR が提示された時 THE SYSTEM SHALL 作業モーションとコード画面を解除する。
-7. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL 落下、揺れ、光、星、手の動きを再生しない。
+1. WHEN a `Merge` replaces a UI with a tombstone (affection bar, present slot, date, dark background) THE SYSTEM SHALL drop the tombstone from above, and on landing produce dust, a small screen shake, and a sound effect.
+2. THE SYSTEM SHALL play the tombstone drop only once, on the render of that merge, and not on re-renders such as a language switch.
+3. WHEN Kiro's reply to choice C starts to be displayed THE SYSTEM SHALL make Kiro bounce, with a glow behind and stars around. They are not shown while the protagonist's line is being typed.
+4. WHILE Kiro's reply to C is being displayed THE SYSTEM SHALL show the characters faster than usual.
+5. WHEN Kiro's reply to choice A or B starts to be displayed THE SYSTEM SHALL make Kiro look down and tap her hands in small movements, and show a screen of scrolling code beside her. Her expression does not change.
+6. WHEN a PR is presented THE SYSTEM SHALL clear the working motion and the code screen.
+7. WHERE `prefers-reduced-motion: reduce` is enabled THE SYSTEM SHALL NOT play the drop, shake, glow, stars, or hand movement.
 
-## R15. エンディングの演出タイミングとクレジット表示
+## R15. Ending Effect Timing and Credit Display
 
-1. WHEN END 2 に到達した時 THE SYSTEM SHALL モック用の好感度バー（`100 / 100`）を、Kiro の返答が表示され始めた時に出す。主人公の行を表示している間は出さない。
-2. WHEN END 4 に到達した時 THE SYSTEM SHALL Kiro を輝かせる演出（目、光、星）を、Kiro の返答が表示され始めた時に出す。主人公の行を表示している間は出さない。
-3. WHEN クレジットが 1 以上減った時 THE SYSTEM SHALL HUD の数字を減少前の値から実残高まで約0.9秒かけてカウントダウンし、背景を短く赤く点滅させる。
-4. THE SYSTEM SHALL カウントダウン中の表示を、実残高を下回らず、`0.00` を下回らないようにし、終了時は実残高と完全に一致させる。
-5. WHEN 結果画面が最初に表示された時 THE SYSTEM SHALL Release Report の行を上から順に表示する。言語切替では再生しない。
-6. WHEN END 2 の結果画面が表示された時 THE SYSTEM SHALL 好感度の行を、実際の内部変数の値（`0`）のままスタンプとして大きく押し、重い音と画面の小さな揺れを出す。結果表には `100 / 100` を一度も表示しない。
-7. WHERE 幅 900px 以上かつ高さ 540px 以上の時 THE SYSTEM SHALL 結果画面を左に立ち絵、右に Release Report の2列で表示し、縦スクロールなしで総評まで表示する。
-8. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL カウントダウン、行の順次表示、スタンプを再生せず、即時に表示する。
+1. WHEN END 2 is reached THE SYSTEM SHALL show the mock affection bar (`100 / 100`) when Kiro's reply starts to be displayed. It is not shown while the protagonist's line is displayed.
+2. WHEN END 4 is reached THE SYSTEM SHALL show the effect that makes Kiro shine (eyes, glow, stars) when Kiro's reply starts to be displayed. It is not shown while the protagonist's line is displayed.
+3. WHEN the credits decrease by 1 or more THE SYSTEM SHALL count the HUD number down from the previous value to the actual balance over about 0.9 seconds, and briefly flash the background red.
+4. THE SYSTEM SHALL keep the displayed value during the countdown from going below the actual balance or below `0.00`, and make it match the actual balance exactly at the end.
+5. WHEN the result screen is displayed for the first time THE SYSTEM SHALL show the Release Report rows one by one from the top. A language switch does not replay this.
+6. WHEN the result screen of END 2 is displayed THE SYSTEM SHALL stamp the affection row large with its actual internal variable value (`0`), with a heavy sound and a small screen shake. The result table never shows `100 / 100`.
+7. WHERE the width is 900px or more and the height is 540px or more THE SYSTEM SHALL show the result screen in two columns, the sprite on the left and the Release Report on the right, through to the closing remark without vertical scrolling.
+8. WHERE `prefers-reduced-motion: reduce` is enabled THE SYSTEM SHALL show the result immediately, without the countdown, the sequential row display, or the stamp.
 
-## R16. タイトルの冒頭演出、結果のスタンプ、エンディングの演出タイミング
+## R16. Title Intro Effect, Result Stamp, and Ending Effect Timing
 
-1. WHEN ゲームが読み込まれた時、または結果画面からタイトルへ戻った時 THE SYSTEM SHALL タイトルの導入演出を再生する。言語切替では再生しない。
-2. THE SYSTEM SHALL 導入演出で、タイトル、`Status: Closed as Not Planned (wontfix)` のスタンプ（着地時に音と画面の揺れ）、キャッチコピー、開始ボタンの順に表示する。
-3. THE SYSTEM SHALL タイトルに、モニターに向かって作業を続ける Kiro と、`Affection: 0 / 100` のゲージを表示する。
-4. WHERE 幅 900px 以上かつ高さ 540px 以上の時 THE SYSTEM SHALL タイトルを左にテキスト、右に Kiro の2列で、縦スクロールなしで表示する。
-5. WHEN END 2 の結果画面で好感度のスタンプを再生した後に言語を切り替えた時 THE SYSTEM SHALL スタンプを再生しない。数値 `0` は大きな表示のまま維持する。
-6. WHEN END 1 に到達した時 THE SYSTEM SHALL 遊園地のシーン、テストログ、効果音を、Kiro の返答が表示され始めた時に出す。END 3 は墓場のシーン、コードログ、効果音を、ナレーションの表示開始時に出す。END 4 のコードログは Kiro の返答の表示開始時に出す。いずれも、主人公の行を表示している間は出さない。
-7. WHEN 表示がスキップされた時 THE SYSTEM SHALL 未表示の行のエンディング演出を、その行を表示した時点で出す。
-8. THE SYSTEM SHALL Kiro の髪に、毛束の濃淡、冠の艶、輪郭のリムライト、額への前髪の影を描く。
-9. WHERE `prefers-reduced-motion: reduce` が有効な時 THE SYSTEM SHALL タイトルの導入演出を再生しない。
+1. WHEN the game is loaded, or when returning to the title from the result screen, THE SYSTEM SHALL play the title intro effect. A language switch does not replay it.
+2. THE SYSTEM SHALL show, in the intro effect and in this order, the title, the `Status: Closed as Not Planned (wontfix)` stamp (with a sound and a screen shake on landing), the tagline, and the start button.
+3. THE SYSTEM SHALL show on the title Kiro working at a monitor and an `Affection: 0 / 100` gauge.
+4. WHERE the width is 900px or more and the height is 540px or more THE SYSTEM SHALL show the title in two columns, text on the left and Kiro on the right, without vertical scrolling.
+5. WHEN the language is switched after the affection stamp has played on the END 2 result screen THE SYSTEM SHALL NOT replay the stamp. The value `0` stays in its large display.
+6. WHEN END 1 is reached THE SYSTEM SHALL show the amusement park scene, the test log, and the sound effect when Kiro's reply starts to be displayed. END 3 shows the graveyard scene, the code log, and the sound effect when the narration starts to be displayed. END 4's code log is shown when Kiro's reply starts to be displayed. In every case, they are not shown while the protagonist's line is displayed.
+7. WHEN the display is skipped THE SYSTEM SHALL show the ending effect of any line not yet displayed at the moment that line is displayed.
+8. THE SYSTEM SHALL draw on Kiro's hair the shading of the locks, the gloss of the crown, a rim light on the outline, and the shadow of the bangs on the forehead.
+9. WHERE `prefers-reduced-motion: reduce` is enabled THE SYSTEM SHALL NOT play the title intro effect.

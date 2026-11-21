@@ -4,55 +4,55 @@ inclusion: always
 
 # Project Rules: Kiro: Love Is Out of Scope
 
-副題: `— Status: Closed as Not Planned (wontfix) —`
+Subtitle: `— Status: Closed as Not Planned (wontfix) —`
 
-AIエンジニア「Kiro」を攻略しようとして、永遠に攻略できない全10日間のメタ恋愛ホラーADV。
-詳細仕様は `.kiro/specs/love-out-of-scope/` を参照すること。
+A 10-day meta romance-horror adventure game in which you try to win over the AI engineer "Kiro" and can never succeed.
+See `.kiro/specs/love-out-of-scope/` for detailed specifications.
 
-## 技術制約（厳守）
+## Technical Constraints (strict)
 
-- 外部API、外部画像、外部音源、CDN、Webフォントは使用しない。
-- HTML / CSS / JavaScript、インラインSVG / Canvas、Web Audio API のプロシージャル合成のみで完結させる。
-- ビルド工程を持たない。`index.html` をブラウザで開く（`file://`）だけで動くこと。
-  - ES Modules は `file://` で動かないため使わず、クラシックスクリプトと名前空間 `window.KLO` を使う。
-- 永続化は `localStorage` のみ。
-  - `klo.lang`: 言語設定
-  - `klo.history`: Release History（周回アルバム）
+- Do not use external APIs, external images, external audio, CDNs, or web fonts.
+- Build everything with HTML / CSS / JavaScript, inline SVG / Canvas, and procedural synthesis with the Web Audio API only.
+- No build step. The game must run by opening `index.html` in a browser (`file://`).
+  - ES Modules do not work over `file://`, so do not use them. Use classic scripts and the `window.KLO` namespace.
+- Persistence uses `localStorage` only.
+  - `klo.lang`: language setting
+  - `klo.history`: Release History (playthrough album)
 
-## ディレクトリ構成
+## Directory Structure
 
 ```
 index.html
 css/style.css
-js/data.js      台詞・PR・エンディングの定義（EN/JA）
-js/state.js     ゲームロジック（DOM非依存）と履歴の永続化
-js/audio.js     Web Audio プロシージャル合成（BGM / SFX）
-js/render.js    SVG立ち絵・背景・墓標・ウィジェットの生成
-js/ui.js        画面遷移と描画
+js/data.js      Definitions of dialogue, PRs, and endings (EN/JA)
+js/state.js     Game logic (DOM-independent) and history persistence
+js/audio.js     Web Audio procedural synthesis (BGM / SFX)
+js/render.js    Generation of SVG sprites, backgrounds, tombstones, and widgets
+js/ui.js        Screen transitions and rendering
 ```
 
-## 不変条件（変更禁止）
+## Invariants (do not change)
 
-1. `actualAffection` は定数 `0`。書き込み不可（`Object.defineProperty` で `writable: false`）。隠し好感度は作らない。END 2 のモック表示も表示専用で、リザルトは必ず内部変数を参照して `0` と表示する。
-2. クレジット残高は常に `0.00` 以上。Day 1〜9 でも Day 10 でも、減算結果は `0.00` でクランプし、マイナスを表示・保持しない。
-3. Day 1〜9 でアクション実行後に `credits <= 0.50` になったら、そのアクションの完了報告を表示した直後に END 5 へ遷移する。Day 10 の最終選択では残高に関わらず選択した END 1 / 2 / 4 を最優先する。
-4. 各日のPR結果は1日1レイヤーとして独立管理し、後日のPRで上書きしない。
-5. すべてのエンディングで Release Report と Kiro の総評を表示し、その時点の立ち絵状態を Release History に保存する。END 5 は Kiro が消える直前に保存する。
+1. `actualAffection` is the constant `0`. It is not writable (`writable: false` via `Object.defineProperty`). Do not create a hidden affection value. The END 2 mock display is display-only, and the result screen must always read the internal variable and show `0`.
+2. The credit balance is always `0.00` or higher. On Days 1-9 and on Day 10, clamp the result of any subtraction at `0.00`. Never display or keep a negative balance.
+3. If `credits <= 0.50` after an action on Days 1-9, transition to END 5 immediately after that action's completion report is displayed. On the Day 10 final choice, the selected END 1 / 2 / 4 takes top priority regardless of the balance.
+4. Manage each day's PR result as an independent layer, one layer per day. A later PR must not overwrite it.
+5. Every ending shows the Release Report and Kiro's closing remark, and saves the sprite state at that moment to Release History. END 5 saves just before Kiro disappears.
 
-## Kiro のキャラクター規則
+## Kiro Character Rules
 
-- 常に丁寧で誠実な業務トーン。甘い言葉やデートの誘いも「仕様の確認」「作業環境の改善」「スケジュール連絡」として大真面目に処理する。
-- 無理なIT用語ダジャレや、人間をパーツに例えるボケは言わない。
-- 例外はプレイヤーが選択肢C（実装・バグ修正・仕様の相談）を選んだときだけ。目が輝き、`✨` つきで嬉しそうに饒舌になる。PR決定時の確認セリフは常に通常の業務トーンにする。
+- Always polite and sincere, in a professional work tone. Treat sweet talk and date invitations in earnest as "specification checks", "work environment improvements", or "schedule notices".
+- Do not make forced IT-term puns or jokes that compare humans to parts.
+- The only exception is when the player picks choice C (implementation, bug fixes, or specification consultation). Then Kiro's eyes light up and Kiro becomes talkative and happy, using `✨`. Kiro's confirmation lines after a PR decision always stay in the normal work tone.
 
-## 日英バイリンガル規則
+## Bilingual (EN/JA) Rules
 
-- 文字列はすべて `{ en, ja }` のペアで `js/data.js` に定義する。UIにハードコードしない。
-- 言語トグルは即時反映する。ログ・HUD・PRカード・結果画面を再描画して、進行状態は保持する。
-- 英語は丁寧でドライなエンジニア業務トーンにする。
+- Define every string as an `{ en, ja }` pair in `js/data.js`. Do not hard-code strings in the UI.
+- The language toggle takes effect immediately. Re-render the log, HUD, PR card, and result screen, and keep the game progress.
+- English uses a polite, dry, engineering work tone.
 
-## コーディング規約
+## Coding Conventions
 
-- 2スペースインデント、`'use strict'`、グローバルは `window.KLO` のみ。
-- ゲームロジックは `js/state.js` に置き、DOMに触れない。乱数は注入できるようにして検証しやすくする。
-- 動的テキストをHTMLに入れるときは必ずエスケープする（`KLO.esc`）。
+- 2-space indentation, `'use strict'`, and `window.KLO` as the only global.
+- Put game logic in `js/state.js` and keep it free of DOM access. Make random numbers injectable so the logic is easy to verify.
+- Always escape dynamic text before putting it in HTML (`KLO.esc`).

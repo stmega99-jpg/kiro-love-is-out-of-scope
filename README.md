@@ -2,16 +2,16 @@
 
 — Status: Closed as Not Planned (wontfix) —
 
-AIエンジニア「Kiro」を攻略しようとして、永遠に攻略できない全10日間のメタ恋愛ホラーADV。日本語 / English 切り替え対応。
+A 10-day meta romance-horror adventure game in which you try to win the heart of Kiro, an AI engineer, and can never succeed. Supports switching between English and Japanese.
 
-## 遊び方
+## How to Play
 
-`index.html` をブラウザで開くだけです。ビルド不要、外部通信なし（HTML/CSS/JS、インラインSVG、Web Audio合成のみ）。
+Open `index.html` in a browser. No build step and no network access (HTML/CSS/JS, inline SVG, and Web Audio synthesis only).
 
-## 仕様
+## Specifications
 
-- `.kiro/steering/project-rules.md` プロジェクトルール
-- `.kiro/specs/love-out-of-scope/` requirements / design / tasks
+- `.kiro/steering/project-rules.md`: project rules
+- `.kiro/specs/love-out-of-scope/`: requirements / design / tasks
 
 ## License
 
