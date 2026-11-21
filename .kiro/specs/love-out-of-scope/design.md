@@ -1,142 +1,142 @@
 # Design: Kiro: Love Is Out of Scope
 
-要件は `requirements.md` を参照。
+See `requirements.md` for the requirements.
 
-## 1. アーキテクチャ
+## 1. Architecture
 
-ビルドなしの静的サイト。クラシックスクリプトを `index.html` から順に読み込み、名前空間 `window.KLO` に登録する。
+A static site with no build step. Classic scripts are loaded in order from `index.html` and register themselves on the namespace `window.KLO`.
 
 ```
 data.js ──▶ state.js ──▶ audio.js ──▶ render.js ──▶ ui.js
- (文言)     (ロジック)    (BGM/SFX)     (SVG)        (画面制御)
+ (text)      (logic)     (BGM/SFX)      (SVG)      (screen control)
 ```
 
-| ファイル | 責務 | DOM依存 |
+| File | Responsibility | DOM dependency |
 | :-- | :-- | :-- |
-| `js/data.js` | 日ごとの台詞、PR、エンディング、UI文言（`{en, ja}`） | なし |
-| `js/state.js` | `createGame()`、費用計算、枯渇判定、EARS検証、履歴の永続化 | なし |
-| `js/audio.js` | BGM3種とSFXの合成、ミュート | AudioContext |
-| `js/render.js` | 立ち絵、背景、墓標、ウィジェットのSVG文字列生成 | なし（文字列を返す） |
-| `js/ui.js` | 画面遷移、ログ、アクション領域、言語切替、ショートカット | あり |
+| `js/data.js` | Per-day dialogue, PRs, endings, UI text (`{en, ja}`) | None |
+| `js/state.js` | `createGame()`, cost calculation, exhaustion check, EARS validation, history persistence | None |
+| `js/audio.js` | Synthesis of 3 BGM tracks and SFX, mute | AudioContext |
+| `js/render.js` | SVG string generation for sprite, background, tombstone, widgets | None (returns strings) |
+| `js/ui.js` | Screen transitions, log, action area, language toggle, shortcuts | Yes |
 
-## 2. 状態モデル
+## 2. State Model
 
 ```js
 state = {
   day: 1,                       // 1..10
-  credits: 4000,                // 常に >= 0（2桁丸め）
+  credits: 4000,                // always >= 0 (rounded to 2 decimals)
   layers: {                     // 'initial' | 'merge' | 'rc'
     affectionUI, bgTheme, costumeBody, bgmMode, itemSlot,
     costumeHead, dateModule, windowFrame, playerInput
   },
-  earsText: '',                 // PR #7 で発注したEARS文
+  earsText: '',                 // EARS sentence ordered in PR #7
   ended: null,                  // 1..5
   // actualAffection: 0         // defineProperty(writable:false, configurable:false)
 }
 ```
 
-- 1つのPRは `PRS[day].layer` で指す1レイヤーだけを書き換える。他の日のレイヤーに触れる経路を作らない。
-- `Close` は `initial` のまま。ペナルティなし。
+- One PR rewrites only the single layer pointed to by `PRS[day].layer`. No path may be created that touches the layers of other days.
+- `Close` leaves the layer as `initial`. There is no penalty.
 
-## 3. クレジット
+## 3. Credits
 
-- 減算は `spend(cost)` に集約し、`credits = round2(max(0, credits - cost))` とする。Day 1〜10 のすべてに適用される。
-- 費用は注入可能な乱数 `rng` から決める。
+- Subtraction goes through `spend(cost)`, which sets `credits = round2(max(0, credits - cost))`. This applies to every day, Day 1-10.
+- Costs are decided from an injectable random number generator `rng`.
 
-| 行動 | 費用 | 所要時間 |
+| Action | Cost | Duration |
 | :-- | :-- | :-- |
-| 会話 A/B/C | 0.20〜0.45 | 3〜8s |
-| `Request Changes` | 650〜900 | 4〜9s |
-| Day 10 選択肢2 | 約500（480〜520） | 5〜9s |
+| Conversation A/B/C | 0.20-0.45 | 3-8s |
+| `Request Changes` | 650-900 | 4-9s |
+| Day 10 choice 2 | About 500 (480-520) | 5-9s |
 
-- 枯渇判定 `isExhausted()` は `day <= 9 && credits <= 0.50`。会話の完了報告後とPR確認セリフの後にUI層が呼ぶ。
-- Day 10 の `finalChoice(n)` は枯渇判定を呼ばず、選んだ END を返す。
+- The exhaustion check `isExhausted()` is `day <= 9 && credits <= 0.50`. The UI layer calls it after a conversation's completion report and after the PR confirmation line.
+- Day 10's `finalChoice(n)` does not call the exhaustion check and returns the END that was chosen.
 
-## 4. 画面フロー
+## 4. Screen Flow
 
 ```
-Title ─▶ Day N 導入 ─▶ 選択肢 A/B/C ─▶ Kiro返答（複数行 / Next）
-                                         │ 枯渇? ─▶ END 5
-                                         ▼
-                                   PR #N 提示 ─▶ Merge / Close / Request Changes
-                                         │          （Day 7 の RC は EARS入力）
-                                         ▼
-                                 Kiro確認セリフ ─▶ PR #9 Merge ─▶ END 3
-                                         │ 枯渇? ─▶ END 5
-                                         ▼
-                                   Day N+1 ... Day 10 ─▶ 最終選択 ─▶ END 1 / 2 / 4
-                                                                       ▼
-                                                              Release Report ─▶ Album
+Title ─▶ Day N intro ─▶ Choice A/B/C ─▶ Kiro's reply (multiple lines / Next)
+                                          │ exhausted? ─▶ END 5
+                                          ▼
+                                    PR #N shown ─▶ Merge / Close / Request Changes
+                                          │          (RC on Day 7 is EARS input)
+                                          ▼
+                                  Kiro's confirmation ─▶ PR #9 Merge ─▶ END 3
+                                          │ exhausted? ─▶ END 5
+                                          ▼
+                                    Day N+1 ... Day 10 ─▶ Final choice ─▶ END 1 / 2 / 4
+                                                                            ▼
+                                                                   Release Report ─▶ Album
 ```
 
-- Day 8 の A/B では、返答に `leave` フラグつきの地の文を入れ、Kiro の立ち絵を退室させて PR #8 を自動通知として出す。
-- Day 1 の A は返答を3行（Kiro / 主人公のツッコミ / Kiro）で持つ。返答は `{ who: 'kiro' | 'player' | 'narr', t }` の配列で、使用量は最後の Kiro 行に付ける。
+- For A/B on Day 8, the reply includes a narration line with a `leave` flag, which makes Kiro's sprite leave the room, and PR #8 is shown as an automatic notification.
+- Day 1's A has a three-line reply (Kiro / the protagonist's retort / Kiro). A reply is an array of `{ who: 'kiro' | 'player' | 'narr', t }`, and the usage amount is attached to the last Kiro line.
 
-## 5. 描画
+## 5. Rendering
 
-- ステージは2枚のSVGを重ねる。`#stage-bg`（背景）は `bgTheme` またはシーンが変わった時だけ書き換え、桜やコウモリのCSSアニメを途切れさせない。`#stage-kiro`（立ち絵）はレイヤー・表情・在室が変わるたびに再生成する。
-- 立ち絵は 胴体 / 頭 / 髪 / 衣装(`costumeBody`) / 帽子(`costumeHead`) のSVGグループを合成する。
-- フリル数: `initial` 15（スカート9 + 襟3 + 袖2 + 腰リボン1）、`merge` 2（袖のみ。13/15 ≒ 87%減）、`rc` 24。`render.frillCount()` で確認できる。
-- 墓標は共通のSVG部品 `tomb()`。HUD・スロット・背景で使う。
-- 会話枠は `windowFrame` に応じて `frame-initial` / `frame-merge`（コンソール）/ `frame-rc`（魔導書）のクラスを切り替える。
-- END 2 のモックバーは `#stage-fx` に重ねる。`affectionUI` の状態は変更しない。
+- The stage overlays two SVGs. `#stage-bg` (background) is rewritten only when `bgTheme` or the scene changes, so the CSS animations for blossoms and bats are not interrupted. `#stage-kiro` (sprite) is regenerated whenever a layer, expression, or presence changes.
+- The sprite is composed from SVG groups for body / head / hair / outfit (`costumeBody`) / hat (`costumeHead`).
+- Frill counts: `initial` 15 (skirt 9 + collar 3 + sleeves 2 + waist ribbon 1), `merge` 2 (sleeves only; 13/15 ≈ 87% fewer), `rc` 24. They can be checked with `render.frillCount()`.
+- The tombstone is a shared SVG part, `tomb()`. It is used in the HUD, slots, and backgrounds.
+- The conversation frame switches among the classes `frame-initial` / `frame-merge` (console) / `frame-rc` (grimoire) according to `windowFrame`.
+- END 2's mock bar is overlaid on `#stage-fx`. It does not change the state of `affectionUI`.
 
-## 6. 音声
+## 6. Audio
 
-`AudioContext` はユーザー操作後に生成する。先読みスケジューラ（50msごと、0.2s先まで）で次のステップを予約する。
+`AudioContext` is created after a user interaction. A look-ahead scheduler (every 50ms, up to 0.2s ahead) reserves the next steps.
 
-| `bgmMode` | 音色 | 内容 |
+| `bgmMode` | Timbre | Content |
 | :-- | :-- | :-- |
-| `initial` | sine + 倍音 | C長調のオルゴール、0.3s/step |
-| `merge` | square | A2周辺の一定パルス、キック風ブリップ |
-| `rc` | saw + LPF、triangle | Dm - B♭ - Gm - A のパッドとチェンバロ風アルペジオ、ビブラート付きの旋律 |
+| `initial` | Sine + overtones | C-major music box, 0.3s/step |
+| `merge` | Square | Steady pulse around A2, kick-like blips |
+| `rc` | Saw + LPF, triangle | Pads in Dm - B♭ - Gm - A and a harpsichord-like arpeggio, with a melody that has vibrato |
 
-SFX: `click`, `sparkle`（選択肢C）, `thunk`（Merge/墓標）, `magic`（Request Changes）, `buzz`（エラー）, `vanish`（END 5）, `jingle`（END）。
+SFX: `click`, `sparkle` (choice C), `thunk` (Merge / tombstone), `magic` (Request Changes), `buzz` (error), `vanish` (END 5), `jingle` (END).
 
-## 7. 永続化とアルバム
+## 7. Persistence and Album
 
 ```js
-// localStorage['klo.history'] : 最大50件、新しい順
+// localStorage['klo.history'] : up to 50 entries, newest first
 { id, at, endId, day, layers, credits, vanished, earsText }
 ```
 
-- `triggerEnd(endId)` の先頭で記録する。END 5 は消滅演出の前に保存するため、Kiro が消えた後でも立ち絵を再現できる。
-- アルバムのカードは `render.miniStage(layers)` で背景と立ち絵を描く。`vanished` のカードは「消滅直前の記録」ラベルを付ける。
-- `localStorage` へのアクセスは `try/catch` で囲み、失敗しても進行を止めない。
+- `triggerEnd(endId)` records at its start. END 5 saves before the vanishing effect, so the sprite can be reproduced even after Kiro has disappeared.
+- Album cards draw the background and sprite with `render.miniStage(layers)`. A `vanished` card gets the label "Last seen before vanishing".
+- Access to `localStorage` is wrapped in `try/catch`, and a failure does not stop progress.
 
-## 8. エラー処理
+## 8. Error Handling
 
-| 状況 | 挙動 |
+| Situation | Behavior |
 | :-- | :-- |
-| EARS文が不正 | 課金せず Kiro が理由を返す。再入力またはキャンセル |
-| `Request Changes` 時に残高0 | ボタンを無効化 |
-| `AudioContext` 非対応 | 音声なしで続行 |
-| `localStorage` 不可 | 保存をスキップ。アルバムは空表示 |
+| EARS sentence is invalid | No charge; Kiro returns the reason. Re-enter or cancel |
+| Balance is 0 at `Request Changes` | Disable the button |
+| `AudioContext` unsupported | Continue without audio |
+| `localStorage` unavailable | Skip saving. The album is shown empty |
 
-## 9. タイプライター表示
+## 9. Typewriter Display
 
-- `renderLog()` は、前回の描画以降に追加された行だけを `startTyping()` に渡す。本文は `.txt` 内のテキストノードを一度空にして、1文字ずつ戻す。
-- 速度は EN 約22ms/文字、JA 約42ms/文字。1行あたり最大約2.4秒に収め、句読点と `…` `!` `?` で短く間を置く。
-- 再描画（言語切替など）や新しい行の追加の前に `finishTyping()` を呼び、未表示分を即時に表示して待機中の処理を解放する。これにより、表示中に言語を切り替えても END への遷移が止まらない。
-- 自動遷移は `whenTyped(fn)` で登録する。`renderGame()`（タイプを開始する処理）の後に登録すること。
+- `renderLog()` passes to `startTyping()` only the lines added since the last render. For the body, it empties the text node inside `.txt` once and puts the characters back one at a time.
+- Speed is about 22ms/character for EN and about 42ms/character for JA. It is capped at about 2.4 seconds per line, with short pauses at punctuation and at `…` `!` `?`.
+- `finishTyping()` is called before a re-render (such as a language switch) or before a new line is added. It immediately shows the text not yet displayed and releases pending work. This keeps the transition to an END from stalling if the language is switched during display.
+- Automatic transitions are registered with `whenTyped(fn)`. Register them after `renderGame()` (the function that starts the typing).
 
-## 10. 笑いどころの演出
+## 10. Comedic Effects
 
-- 墓標の落下: `resolvePr` が `dropLayer` を立て、その1回の `renderGame()` だけが落下用のクラスを付ける。描画の最後に `dropLayer` を空にするので、再描画では再生されない。着地の効果音と画面の揺れは、落下の約0.42秒後に鳴らす。
-- 表情の切替: 返答の行に `reacts` を付け、`lineFx()` が「その行の表示が始まった時」に呼ぶ。C は `joy`（星の目、跳ね、光、星）、A/B は `work`（伏し目、手のタップ、コード画面）。表示のスキップや、タイプなしの経路でも同じ関数が呼ばれる。
-- 光は `#stage-glow`（Kiro の背面）、星は `#stage-burst`（前面）に分けて描き、光が Kiro を霞ませない。
-- `setKiroClass()` は強制再描画を挟み、同じアニメーションを別の日にも再生できる。
+- Tombstone drop: `resolvePr` sets `dropLayer`, and only that one `renderGame()` call adds the drop class. `dropLayer` is cleared at the end of rendering, so it does not replay on a re-render. The landing sound effect and the screen shake play about 0.42 seconds after the drop.
+- Expression switching: a `reacts` field is attached to a reply line, and `lineFx()` is called "when the display of that line starts". C uses `joy` (star eyes, bounce, glow, stars), and A/B use `work` (eyes down, hand tapping, code screen). The same function is called on a display skip and on paths without typing.
+- The glow is drawn in `#stage-glow` (behind Kiro) and the stars in `#stage-burst` (in front), so the glow does not haze Kiro.
+- `setKiroClass()` forces a re-render in between, so the same animation can play again on another day.
 
-## 11. エンディングの演出タイミング、クレジット、結果画面
+## 11. Ending Effect Timing, Credits, and Result Screen
 
-- エンディングの演出は、ログの行にフラグを付けて `lineFx()` で出す。END 2 は `mock`、END 4 は `reacts`（`joy` はデータ側で設定済み）。`triggerEnd` の先頭では出さない。
-- `syncCredits(target)` は `requestAnimationFrame` で表示値を補間する。表示値は `max(target, from - (from - target) * ease)` で、実残高を下回らない。同じ目標値での再描画では何もしない。
-- 結果画面の行は CSS アニメーションの遅延（`--d`）で順に出す。`resultFresh` は、エンディング直後の最初の描画だけ真にし、言語切替での再生を防ぐ。
-- END 2 のスタンプは、実際の値 `0` を持つ要素をそのまま拡大して着地させる。表示値を `100` から書き換える方式にはしない。
+- Ending effects are triggered with `lineFx()` by attaching flags to log lines. END 2 uses `mock`, and END 4 uses `reacts` (`joy` is already set on the data side). They are not triggered at the start of `triggerEnd`.
+- `syncCredits(target)` interpolates the displayed value with `requestAnimationFrame`. The displayed value is `max(target, from - (from - target) * ease)`, so it never goes below the actual balance. A re-render with the same target value does nothing.
+- The rows of the result screen appear in order through CSS animation delays (`--d`). `resultFresh` is true only for the first render right after an ending, which prevents replay on a language switch.
+- The END 2 stamp enlarges and lands the element that holds the actual value `0`. It does not rewrite the displayed value starting from `100`.
 
-## 12. タイトルの導入演出、髪の質感、エンディング演出の紐づけ
+## 12. Title Intro Effect, Hair Texture, and Ending Effect Wiring
 
-- `titleFresh` は、読み込み時と結果画面からの `to-title` でだけ真になる。`renderTitle()` が消費して `.title-card.fresh` を付け外しするので、再描画（言語切替）では導入演出が再生されない。
-- 結果のスタンプは `.stampv.play` の時だけアニメーションする。`.stampv` 自体は大きな文字サイズだけを持つ。
-- エンディングの演出は、ログの行に `endScene` / `endFx` / `cue` / `stopBgm` を付け、`lineFx()` が行の表示開始時に適用する。END 3 のナレーション行にも `data-i` を付ける。
-- 髪は、背面の毛束（暗い溝と明るい束）、外側のリムライト、前髪の毛束、額に落ちる前髪の影（顔の楕円でクリップ）、冠の艶（横方向のグラデーションの弧）で構成する。
+- `titleFresh` is true only on load and on `to-title` from the result screen. `renderTitle()` consumes it and adds or removes `.title-card.fresh`, so the intro effect does not replay on a re-render (language switch).
+- The result stamp animates only when it has `.stampv.play`. `.stampv` itself only carries the large font size.
+- Ending effects are applied by attaching `endScene` / `endFx` / `cue` / `stopBgm` to log lines, and `lineFx()` applies them when the line starts to display. END 3's narration lines also get `data-i`.
+- Hair consists of back locks (dark grooves and light strands), an outer rim light, front bang strands, the shadow of the bangs falling on the forehead (clipped by the face ellipse), and the gloss of the crown (an arc with a horizontal gradient).
